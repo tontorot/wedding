@@ -5,14 +5,15 @@ $(function () {
   var stage = new createjs.Stage("canvas");
 
   var resize_ratio = 1;
+  var container = null;
+
+  init();
 
   createjs.Ticker.setFPS(30);
 
   createjs.Ticker.addEventListener("tick", function() {
     stage.update(); // 30fpsでステージの描画が更新されるようになる
   });
-
-  init();
 
   canvas.addEventListener('mousedown', onDown, false);
   canvas.addEventListener('mouseup', onUp, false);
@@ -37,29 +38,53 @@ $(function () {
     canvas.setAttribute("width", 640 * resize_ratio);
     canvas.setAttribute("height", 480 * resize_ratio);
 
+    container = new createjs.Container();
+    stage.addChild(container);
     //画像ローダークラスでチェック
     var background_image = new createjs.ImageLoader("panorama.JPG",false);
     background_image.addEventListener("complete",function() {
       var bitmap = new createjs.Bitmap("panorama.JPG");
       bitmap.setTransform(0,0,resize_ratio,resize_ratio);
-      stage.addChild(bitmap);
+      container.addChild(bitmap);
     });
     background_image.load();
     // Stageの描画を更新します
     stage.update();
   }
 
+  var before_x;
+  var before_y;
+  var after_x;
+  var after_y;
+  var total_diff_x = 0;
+  var total_diff_y = 0;
   function onDown(e) {
+    before_x = e.clientX - canvas.offsetLeft;
+    before_y = e.clientY - canvas.offsetTop;
+    console.log("before_x:", before_x, "before_y:", before_y);
     console.log("down");
   }
   function onUp(e) {
-    console.log("up");
+    after_x = e.clientX - canvas.offsetLeft;
+    after_y = e.clientY - canvas.offsetTop;
+    console.log("after_x:", after_x, "after_y:", after_y);
+    var diff_x = after_x - before_x;
+    var diff_y = after_y - before_y;
+    total_diff_x += diff_x;
+    total_diff_y += diff_y;
+    before_x = 0;
+    before_y = 0;
+    after_x = 0;
+    after_y = 0;
+    console.log("up "+diff_x+","+diff_y);
+    container.setTransform(total_diff_x,0);
+    stage.update();
   }
   function onClick(e) {
-    console.log("click");
+    // console.log("click");
     var x = e.clientX - canvas.offsetLeft;
     var y = e.clientY - canvas.offsetTop;
-    console.log("x:", x, "y:", y);
+    // console.log("x:", x, "y:", y);
     //openCheck(x,y);
   }
   function openCheck(x,y)
@@ -98,10 +123,10 @@ $(function () {
     }
   }
   function onOver(e) {
-    console.log("mouseover");
+    // console.log("mouseover");
   }
   function onOut() {
-    console.log("mouseout");
+    // console.log("mouseout");
   }
   function drawCat(x, y) {
     var img = new Image();
