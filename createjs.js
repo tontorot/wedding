@@ -6,7 +6,8 @@ $(function () {
 
   var resize_ratio = 1;
   var container = null;
-
+  var background_image_width = 0;
+  var canvas_scaled_width = 0;
   init();
 
   createjs.Ticker.setFPS(30);
@@ -16,12 +17,14 @@ $(function () {
   });
 
   canvas.addEventListener('mousedown', onDown, false);
+  canvas.addEventListener('touchstart', onTouch, false);
   canvas.addEventListener('mouseup', onUp, false);
+  canvas.addEventListener('touchend', onUp, false);
+  canvas.addEventListener('mousemove', onMove, false);
+  canvas.addEventListener('touchmove', onSwipe, false);
   canvas.addEventListener('click', onClick, false);
   canvas.addEventListener('mouseover', onOver, false);
   canvas.addEventListener('mouseout', onOut, false);
-  canvas.addEventListener('touchstart', onDown, false);
-  canvas.addEventListener('touchend', onUp, false);
 
   function init() {
     var window_width = window.innerWidth;
@@ -35,7 +38,8 @@ $(function () {
       resize_ratio = window_width / 640;
     }
     console.log("resize_ratio = "+resize_ratio);
-    canvas.setAttribute("width", 640 * resize_ratio);
+    canvas_scaled_width = 640 * resize_ratio;
+    canvas.setAttribute("width", canvas_scaled_width);
     canvas.setAttribute("height", 480 * resize_ratio);
 
     container = new createjs.Container();
@@ -44,14 +48,22 @@ $(function () {
     var background_image = new createjs.ImageLoader("panorama.JPG",false);
     background_image.addEventListener("complete",function() {
       var bitmap = new createjs.Bitmap("panorama.JPG");
+      console.log(bitmap);
+      // console.log(bitmap.image.width,bitmap.image.height);
+      background_image_width = bitmap.image.width * resize_ratio;
+      // console.log(background_image_width);
       bitmap.setTransform(0,0,resize_ratio,resize_ratio);
+      // console.log(bitmap.image.width,bitmap.image.height);
       container.addChild(bitmap);
     });
     background_image.load();
+    createjs.Touch.enable(stage);
+    $("#textbox").text(total_diff_x);
     // Stageの描画を更新します
     stage.update();
   }
 
+  var in_drag = false;
   var before_x;
   var before_y;
   var after_x;
@@ -59,27 +71,54 @@ $(function () {
   var total_diff_x = 0;
   var total_diff_y = 0;
   function onDown(e) {
+    in_drag = true;
     before_x = e.clientX - canvas.offsetLeft;
-    before_y = e.clientY - canvas.offsetTop;
-    console.log("before_x:", before_x, "before_y:", before_y);
-    console.log("down");
+    // $("#textbox").text(JSON.stringify(e));
+  }
+  function onTouch(e) {
+    in_drag = true;
+    before_x = e.touches[0].clientX - canvas.offsetLeft;
+    // $("#textbox").text(JSON.stringify(e.touches[0].clientX));
   }
   function onUp(e) {
-    after_x = e.clientX - canvas.offsetLeft;
-    after_y = e.clientY - canvas.offsetTop;
-    console.log("after_x:", after_x, "after_y:", after_y);
-    var diff_x = after_x - before_x;
-    var diff_y = after_y - before_y;
-    total_diff_x += diff_x;
-    total_diff_y += diff_y;
-    before_x = 0;
-    before_y = 0;
-    after_x = 0;
-    after_y = 0;
-    console.log("up "+diff_x+","+diff_y);
-    container.setTransform(total_diff_x,0);
-    stage.update();
+    in_drag = false;
+    // $("#textbox").text("onUp");
   }
+  function onMove(e) {
+    moveContainer(e.clientX)
+  }
+  function onSwipe(e) {
+    moveContainer(e.touches[0].clientX);
+  }
+  function moveContainer(x)
+  {
+    if(in_drag)
+    {
+      after_x = x - canvas.offsetLeft;
+      var diff_x = after_x - before_x;
+      total_diff_x += diff_x;
+      before_x = after_x;
+      var min_total_diff_x = canvas_scaled_width - background_image_width;
+      //背景画像が一番左にいたら、それ以上右に引っ張れなくする
+      if(total_diff_x > 0)
+      {
+        total_diff_x = 0;
+      }
+      //背景画像が一番右にいたら、それ以上左に引っ張れなくする
+      else if(total_diff_x < min_total_diff_x)
+      {
+        total_diff_x = canvas_scaled_width - background_image_width;
+      }
+
+      // $("#textbox").text(total_diff_x);
+      container.setTransform(total_diff_x,0);
+      stage.update();
+    }
+  }
+  function onOut() {
+    in_drag = false;
+  }
+
   function onClick(e) {
     // console.log("click");
     var x = e.clientX - canvas.offsetLeft;
@@ -123,10 +162,7 @@ $(function () {
     }
   }
   function onOver(e) {
-    // console.log("mouseover");
-  }
-  function onOut() {
-    // console.log("mouseout");
+    console.log("mouseover");
   }
   function drawCat(x, y) {
     var img = new Image();
