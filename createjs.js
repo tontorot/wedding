@@ -1,3 +1,5 @@
+
+
 $(function () {
   var canvas = document.getElementById("canvas");
 
@@ -9,6 +11,7 @@ $(function () {
   var background_image_width = 0;
 
   var canvas_scaled_width = 0;
+  var loaded_image_list = {};
 
   //当たり判定用配列
   //連想配列
@@ -18,25 +21,64 @@ $(function () {
       ,2:{"x":320,"y":240,"is_open":false}
   };
 
-  init();
+  // LoadQueueのインスタンス作成
+  // 引数にfalseを指定するとXHRを使わずtagによる読み込みを行います
+  var queue = new createjs.LoadQueue(true);
 
-  createjs.Ticker.setFPS(30);
+  // 読み込むファイルの登録。
+  var manifest = [
+      {"src":"panorama.JPG","id":"background_image"},
+      {"src":"cat_test.png","id":"cat"},
+  ];
+  // src,idともに省略可能。省略した場合はパスがsrcとidにセットされる
+  // var manifest = ["./image1.jpg","./image2.jpg","./image3.jpg"];
 
-  createjs.Ticker.addEventListener("tick", function() {
-    stage.update(); // 30fpsでステージの描画が更新されるようになる
-  });
+  // manifestの読込
+  queue.loadManifest(manifest,true);
+  // 任意のタイミングで読込を開始したい場合、第2引数にfalseを指定し、queue.load()を実行する
+  // queue.loadManifest(manifest,false);
+  // queue.load();
 
-  canvas.addEventListener('mousedown', onDown, false);
-  canvas.addEventListener('touchstart', onTouch, false);
-  canvas.addEventListener('mouseup', onUp, false);
-  canvas.addEventListener('touchend', onUp, false);
-  canvas.addEventListener('mousemove', onMove, false);
-  canvas.addEventListener('touchmove', onSwipe, false);
-  //canvas.addEventListener('click', onClick, false);
-  canvas.addEventListener('mouseover', onOver, false);
-  canvas.addEventListener('mouseout', onOut, false);
+  // ファイルが1つ読込完了するたびにfileloadイベントが発生
+  // fileloadイベントにメソッドを割り当てる
+  queue.addEventListener("fileload",handleFileLoad);  
+  // 全ファイルの読み込みが終わった時completeイベントが発生する
+  queue.addEventListener("complete",handleComplete);
+
+  // ファイルが1つ読込完了すると呼ばれる。引数にファイルの読込結果を含むオブジェクトが渡される
+  function handleFileLoad(event){
+    // .itemにはファイルの情報が格納されています。詳細は後述
+    var item = event.item;
+    if(item.type === createjs.LoadQueue.IMAGE){
+      loaded_image_list[item.id] = event.result;
+    }
+  }
+
+  // ファイルがすべて読込完了すると呼ばれる
+  function handleComplete(event){
+    // completeハンドラに渡される引数が持っているgetResult()にidを指定してファイルオブジェクトを取得する
+    // var file = event.getResult(id); manifestで指定したid
+    init();
+  }
+
 
   function init() {
+    createjs.Ticker.setFPS(30);
+
+    createjs.Ticker.addEventListener("tick", function() {
+      stage.update(); // 30fpsでステージの描画が更新されるようになる
+    });
+
+    canvas.addEventListener('mousedown', onDown, false);
+    canvas.addEventListener('touchstart', onTouch, false);
+    canvas.addEventListener('mouseup', onUp, false);
+    canvas.addEventListener('touchend', onUp, false);
+    canvas.addEventListener('mousemove', onMove, false);
+    canvas.addEventListener('touchmove', onSwipe, false);
+    //canvas.addEventListener('click', onClick, false);
+    canvas.addEventListener('mouseover', onOver, false);
+    canvas.addEventListener('mouseout', onOut, false);
+
     var window_width = window.innerWidth;
     var window_height = window.innerHeight;
     if(window_width > window_height)
@@ -54,9 +96,9 @@ $(function () {
 
     container = new createjs.Container();
     stage.addChild(container);
-    addImage(container, "panorama.JPG", 0, 0);
+    addImage(container, "background_image", 0, 0);
     //TODO:preload.jsで背景画像を読み込んで、ここで使うようにする
-    background_image_width = 2340 * resize_ratio;
+    background_image_width = loaded_image_list["background_image"].width * resize_ratio;
     createjs.Touch.enable(stage);
     $("#textbox").text(total_diff_x);
     // Stageの描画を更新します
@@ -69,17 +111,9 @@ $(function () {
    */
   function addImage(target_container,image_name,image_x,image_y)
   {
-    var background_image = new createjs.ImageLoader(image_name,false);
-    background_image.addEventListener("complete",function() {
-      var bitmap = new createjs.Bitmap(image_name);
-      console.log(bitmap);
-      // console.log(bitmap.image.width,bitmap.image.height);
-      // console.log(background_image_width);
-      bitmap.setTransform(image_x,image_y,resize_ratio,resize_ratio);
-      // console.log(bitmap.image.width,bitmap.image.height);
-      target_container.addChild(bitmap);
-    });
-    background_image.load();
+    var added_image = new createjs.Bitmap(loaded_image_list[image_name]);
+    added_image.setTransform(image_x,image_y,resize_ratio,resize_ratio);
+    target_container.addChild(added_image);
   }
   var in_drag = false;
   var before_x;
@@ -161,7 +195,7 @@ $(function () {
             hit_point_y - height/2 < y && y < hit_point_y + height/2)
         {
           console.log("is_clicked, drawCat at ("+hit_point_x+","+hit_point_y+")");
-          addImage(container,"cat_test.png",hit_point_x,hit_point_y);
+          addImage(container,"cat",hit_point_x,hit_point_y);
           data[key]["is_open"] = true;
         }
         else
