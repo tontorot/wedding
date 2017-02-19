@@ -7,7 +7,17 @@ $(function () {
   var resize_ratio = 1;
   var container = null;
   var background_image_width = 0;
+
   var canvas_scaled_width = 0;
+
+  //当たり判定用配列
+  //連想配列
+  var data ={
+      0:{"x":100,"y":150,"is_open":false}
+      ,1:{"x":0,"y":0,"is_open":false}
+      ,2:{"x":320,"y":240,"is_open":false}
+  };
+
   init();
 
   createjs.Ticker.setFPS(30);
@@ -22,7 +32,7 @@ $(function () {
   canvas.addEventListener('touchend', onUp, false);
   canvas.addEventListener('mousemove', onMove, false);
   canvas.addEventListener('touchmove', onSwipe, false);
-  canvas.addEventListener('click', onClick, false);
+  //canvas.addEventListener('click', onClick, false);
   canvas.addEventListener('mouseover', onOver, false);
   canvas.addEventListener('mouseout', onOut, false);
 
@@ -44,25 +54,33 @@ $(function () {
 
     container = new createjs.Container();
     stage.addChild(container);
-    //画像ローダークラスでチェック
-    var background_image = new createjs.ImageLoader("panorama.JPG",false);
-    background_image.addEventListener("complete",function() {
-      var bitmap = new createjs.Bitmap("panorama.JPG");
-      console.log(bitmap);
-      // console.log(bitmap.image.width,bitmap.image.height);
-      background_image_width = bitmap.image.width * resize_ratio;
-      // console.log(background_image_width);
-      bitmap.setTransform(0,0,resize_ratio,resize_ratio);
-      // console.log(bitmap.image.width,bitmap.image.height);
-      container.addChild(bitmap);
-    });
-    background_image.load();
+    addImage(container, "panorama.JPG", 0, 0);
+    //TODO:preload.jsで背景画像を読み込んで、ここで使うようにする
+    background_image_width = 2340 * resize_ratio;
     createjs.Touch.enable(stage);
     $("#textbox").text(total_diff_x);
     // Stageの描画を更新します
     stage.update();
   }
-
+  /**
+   * @param target_container 画像を載せるコンテナ
+   * @param image_name 読み込む画像名
+   * @param image_x 画像を配置する座標（画像の左上の座標を参照
+   */
+  function addImage(target_container,image_name,image_x,image_y)
+  {
+    var background_image = new createjs.ImageLoader(image_name,false);
+    background_image.addEventListener("complete",function() {
+      var bitmap = new createjs.Bitmap(image_name);
+      console.log(bitmap);
+      // console.log(bitmap.image.width,bitmap.image.height);
+      // console.log(background_image_width);
+      bitmap.setTransform(image_x,image_y,resize_ratio,resize_ratio);
+      // console.log(bitmap.image.width,bitmap.image.height);
+      target_container.addChild(bitmap);
+    });
+    background_image.load();
+  }
   var in_drag = false;
   var before_x;
   var before_y;
@@ -73,11 +91,13 @@ $(function () {
   function onDown(e) {
     in_drag = true;
     before_x = e.clientX - canvas.offsetLeft;
+    openCheck(e.clientX, e.clientY);
     // $("#textbox").text(JSON.stringify(e));
   }
   function onTouch(e) {
     in_drag = true;
     before_x = e.touches[0].clientX - canvas.offsetLeft;
+    openCheck(e.touches[0].clientX, e.touches[0].clientY);
     // $("#textbox").text(JSON.stringify(e.touches[0].clientX));
   }
   function onUp(e) {
@@ -110,7 +130,7 @@ $(function () {
         total_diff_x = canvas_scaled_width - background_image_width;
       }
 
-      // $("#textbox").text(total_diff_x);
+      $("#textbox").text(total_diff_x);
       container.setTransform(total_diff_x,0);
       stage.update();
     }
@@ -129,6 +149,8 @@ $(function () {
   function openCheck(x,y)
   {
     var is_complete = true;
+    var width = 190;
+    var height = 190;
     for(var key in data)
     {
       if(!data[key]["is_open"])
@@ -139,7 +161,7 @@ $(function () {
             hit_point_y - height/2 < y && y < hit_point_y + height/2)
         {
           console.log("is_clicked, drawCat at ("+hit_point_x+","+hit_point_y+")");
-          drawCat(hit_point_x,hit_point_y);
+          addImage(container,"cat_test.png",hit_point_x,hit_point_y);
           data[key]["is_open"] = true;
         }
         else
@@ -151,27 +173,18 @@ $(function () {
     //フラグが折れていなかったら、complete画像を表示
     if(is_complete)
     {
-      var complete_img = new Image();
-      complete_img.src = "complete.jpg";
-      /* 画像を描画 */
-      complete_img.onload = function() {
-        console.log("img.width = "+complete_img.width);
-        console.log("img.height = "+complete_img.height);
-        context.drawImage(complete_img, 320 - complete_img.width/2, 240 - complete_img.height/2);
-      }
+      // var complete_img = new Image();
+      // complete_img.src = "complete.jpg";
+      // /* 画像を描画 */
+      // complete_img.onload = function() {
+      //   console.log("img.width = "+complete_img.width);
+      //   console.log("img.height = "+complete_img.height);
+      //   context.drawImage(complete_img, 320 - complete_img.width/2, 240 - complete_img.height/2);
+      // }
+      console.log("complete");
     }
   }
   function onOver(e) {
     console.log("mouseover");
-  }
-  function drawCat(x, y) {
-    var img = new Image();
-    img.src = "cat_test.png";
-    //gifは動かなかった
-    //img.src = "mew_cat.gif";
-    /* 画像を描画 */
-    img.onload = function() {
-      context.drawImage(img, x - width/2, y - height/2);
-    }
   }
 });
