@@ -8,6 +8,7 @@ $(function () {
 
   var resize_ratio = 1;
   var container = null;
+  var container2 = null;
   var background_image_width = 0;
 
   var canvas_scaled_width = 0;
@@ -16,10 +17,14 @@ $(function () {
   //当たり判定用配列
   //連想配列
   var data ={
-      0:{"x":100,"y":150,"is_open":false}
-      ,1:{"x":0,"y":0,"is_open":false}
+      0:{"x":0,"y":0,"is_open":false}
+      ,1:{"x":200,"y":0,"is_open":false}
       ,2:{"x":320,"y":240,"is_open":false}
   };
+  var child_data = {};
+  var hit_width = 118;
+  var hit_offset_x = 20;
+  var hit_offset_y = 20;
 
   // LoadQueueのインスタンス作成
   // 引数にfalseを指定するとXHRを使わずtagによる読み込みを行います
@@ -29,6 +34,9 @@ $(function () {
   var manifest = [
       {"src":"panorama.JPG","id":"background_image"},
       {"src":"cat_test.png","id":"cat"},
+      {"src":"danbo-ru.jpg","id":"danbo-ru"},
+      {"src":"danbo-rucat.jpg","id":"danbo-rucat"},
+      {"src":"complete.jpg","id":"complete"},
   ];
   // src,idともに省略可能。省略した場合はパスがsrcとidにセットされる
   // var manifest = ["./image1.jpg","./image2.jpg","./image3.jpg"];
@@ -95,11 +103,20 @@ $(function () {
     canvas.setAttribute("height", 480 * resize_ratio);
 
     container = new createjs.Container();
+    container2 = new createjs.Container();
     stage.addChild(container);
+    stage.addChild(container2);
     addImage(container, "background_image", 0, 0);
-    //TODO:preload.jsで背景画像を読み込んで、ここで使うようにする
+
+    // ダンボール画像を表示。隠れてる猫と同じ数だけ
+    $.each(data,function(index,val){
+      console.log("index = "+index);
+      added_image = addImage(container2, "danbo-ru", hit_offset_x + index * hit_width, hit_offset_y);
+      child_data[index] = added_image;
+    });
     background_image_width = loaded_image_list["background_image"].width * resize_ratio;
     createjs.Touch.enable(stage);
+    // TODO:デバコマ 削除予定
     $("#textbox").text(total_diff_x);
     // Stageの描画を更新します
     stage.update();
@@ -111,10 +128,13 @@ $(function () {
    */
   function addImage(target_container,image_name,image_x,image_y)
   {
+    //画像の左上の座標がimagex,image_yになる
     var added_image = new createjs.Bitmap(loaded_image_list[image_name]);
     added_image.setTransform(image_x,image_y,resize_ratio,resize_ratio);
     target_container.addChild(added_image);
+    return added_image;
   }
+
   var in_drag = false;
   var before_x;
   var before_y;
@@ -126,6 +146,7 @@ $(function () {
     in_drag = true;
     before_x = e.clientX - canvas.offsetLeft;
     openCheck(e.clientX, e.clientY);
+    console.log("(x,y) = ("+e.clientX+","+e.clientY+")");
     // $("#textbox").text(JSON.stringify(e));
   }
   function onTouch(e) {
@@ -183,20 +204,26 @@ $(function () {
   function openCheck(x,y)
   {
     var is_complete = true;
-    var width = 190;
-    var height = 190;
-    for(var key in data)
+    var width = 190; //クリックされた位置にでるネコ画像の横幅
+    var height = 190; //クリックされた位置にでるネコ画像の縦幅
+    for(var index in data)
     {
-      if(!data[key]["is_open"])
+      if(!data[index]["is_open"])
       {
-        var hit_point_x = data[key]["x"];
-        var hit_point_y = data[key]["y"];
-        if( hit_point_x - width/2 < x && x < hit_point_x + width/2 &&
-            hit_point_y - height/2 < y && y < hit_point_y + height/2)
+        var hit_point_x = data[index]["x"]; //画像左上のx座標
+        var hit_point_y = data[index]["y"]; //画像左上のy座標
+        // 画像もresize_ratioの分引き伸ばされているので、それを加味した当たり判定チェック
+        if( hit_point_x < x && x < hit_point_x + width * resize_ratio &&
+            hit_point_y < y && y < hit_point_y + height * resize_ratio)
         {
           console.log("is_clicked, drawCat at ("+hit_point_x+","+hit_point_y+")");
+          // 探し当てられた猫を表示する
           addImage(container,"cat",hit_point_x,hit_point_y);
-          data[key]["is_open"] = true;
+          // ダンボール画像を削除して、開封後画像に置換
+          container2.removeChild(child_data[index]);
+          added_image = addImage(container2, "danbo-rucat", hit_offset_x + index * hit_width, hit_offset_y);
+          // この猫は見つけられたというフラグを立てる
+          data[index]["is_open"] = true;
         }
         else
         {
@@ -207,14 +234,8 @@ $(function () {
     //フラグが折れていなかったら、complete画像を表示
     if(is_complete)
     {
-      // var complete_img = new Image();
-      // complete_img.src = "complete.jpg";
-      // /* 画像を描画 */
-      // complete_img.onload = function() {
-      //   console.log("img.width = "+complete_img.width);
-      //   console.log("img.height = "+complete_img.height);
-      //   context.drawImage(complete_img, 320 - complete_img.width/2, 240 - complete_img.height/2);
-      // }
+      // 達成画像を表示。時間差いれてもいいかも
+      addImage(container,"complete",640/2,480/2);
       console.log("complete");
     }
   }
