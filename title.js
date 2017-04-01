@@ -135,11 +135,12 @@ $(function () {
   function toTutorial()
   {
     console.log("to_tutorial");
-    window.location.href = './createjs.html';
+    window.location.href = './tutorial.html';
   }
   //チュートリアルページへ飛ぶ処理
   function toGame()
   {
     console.log("to_game");
+    window.location.href = './createjs.html';
   }
 });
