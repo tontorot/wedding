@@ -203,41 +203,56 @@ $(function () {
   }
   function openCheck(x,y)
   {
-    var is_complete = true;
+    var is_once_open = false;
     var width = 190; //クリックされた位置にでるネコ画像の横幅
     var height = 190; //クリックされた位置にでるネコ画像の縦幅
     for(var index in data)
     {
-      if(!data[index]["is_open"])
+      if(is_once_open)
       {
-        var hit_point_x = data[index]["x"]; //画像左上のx座標
-        var hit_point_y = data[index]["y"]; //画像左上のy座標
-        // 画像もresize_ratioの分引き伸ばされているので、それを加味した当たり判定チェック
-        if( hit_point_x < x && x < hit_point_x + width * resize_ratio &&
-            hit_point_y < y && y < hit_point_y + height * resize_ratio)
-        {
-          console.log("is_clicked, drawCat at ("+hit_point_x+","+hit_point_y+")");
-          // 探し当てられた猫を表示する
-          addImage(container,"cat",hit_point_x,hit_point_y);
-          // ダンボール画像を削除して、開封後画像に置換
-          container2.removeChild(child_data[index]);
-          added_image = addImage(container2, "danbo-rucat", hit_offset_x + index * hit_width, hit_offset_y);
-          // この猫は見つけられたというフラグを立てる
-          data[index]["is_open"] = true;
-        }
-        else
-        {
-          is_complete = false;
-        }
+        continue;
+      }
+      if(data[index]["is_open"])
+      {
+        continue;
+      }
+      var hit_point_x = data[index]["x"]; //画像左上のx座標
+      var hit_point_y = data[index]["y"]; //画像左上のy座標
+      // 画像もresize_ratioの分引き伸ばされているので、それを加味した当たり判定チェック
+      if( hit_point_x < x && x < hit_point_x + width * resize_ratio &&
+          hit_point_y < y && y < hit_point_y + height * resize_ratio)
+      {
+        console.log("is_clicked, drawCat at ("+hit_point_x+","+hit_point_y+")");
+        // 探し当てられた猫を表示する
+        addImage(container,"cat",hit_point_x,hit_point_y);
+        // ダンボール画像を削除して、開封後画像に置換
+        container2.removeChild(child_data[index]);
+        added_image = addImage(container2, "danbo-rucat", hit_offset_x + index * hit_width, hit_offset_y);
+        // この猫は見つけられたというフラグを立てる
+        data[index]["is_open"] = true;
+        is_once_open = true;
       }
     }
     //フラグが折れていなかったら、complete画像を表示
-    if(is_complete)
+    if(is_complete())
     {
       // 達成画像を表示。時間差いれてもいいかも
       addImage(container,"complete",640/2,480/2);
       console.log("complete");
     }
+  }
+  //猫画像がすべてオープンになっているかチェックする
+  function is_complete()
+  {
+    var is_complete = true;
+    for(var index in data)
+    {
+      if(!data[index]["is_open"])
+      {
+        is_complete = false;
+      }
+    }
+    return is_complete;
   }
   function onOver(e) {
     console.log("mouseover");
