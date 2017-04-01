@@ -94,9 +94,9 @@ $(function () {
     addImage(container, BACKGROUND_IMAGE, 0, 0);
 
     //チュートリアルへ飛ぶボタンを設置
-    addButtonImage(container, TO_TUTORIAL, toTutorial, 160 * resize_ratio, 320 * resize_ratio);
+    addButtonImage(container, TO_TUTORIAL, toTutorial, 160, 320);
     //本編へ飛ぶボタンを設置
-    addButtonImage(container, TO_GAME, toGame, 160 * resize_ratio, 400 * resize_ratio);
+    addButtonImage(container, TO_GAME, toGame, 160, 400);
 
     background_image_width = loaded_image_list[BACKGROUND_IMAGE].width * resize_ratio;
     createjs.Touch.enable(stage);
@@ -112,7 +112,7 @@ $(function () {
   {
     //画像の左上の座標がimagex,image_yになる
     var added_image = new createjs.Bitmap(loaded_image_list[image_name]);
-    added_image.setTransform(image_x,image_y,resize_ratio,resize_ratio);
+    added_image.setTransform(image_x*resize_ratio,image_y*resize_ratio,resize_ratio,resize_ratio);
     target_container.addChild(added_image);
     return added_image;
   }
@@ -125,7 +125,7 @@ $(function () {
   {
     //画像の左上の座標がimagex,image_yになる
     var added_image = new createjs.Bitmap(loaded_image_list[image_name]);
-    added_image.setTransform(image_x,image_y,resize_ratio,resize_ratio);
+    added_image.setTransform(image_x*resize_ratio,image_y*resize_ratio,resize_ratio,resize_ratio);
     added_image.addEventListener('mousedown',event_name,false);
     added_image.addEventListener('touchstart',event_name,false);
     target_container.addChild(added_image);

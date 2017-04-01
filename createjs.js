@@ -135,7 +135,7 @@ $(function () {
   {
     //画像の左上の座標がimagex,image_yになる
     var added_image = new createjs.Bitmap(loaded_image_list[image_name]);
-    added_image.setTransform(image_x,image_y,resize_ratio,resize_ratio);
+    added_image.setTransform(image_x*resize_ratio,image_y*resize_ratio,resize_ratio,resize_ratio);
     target_container.addChild(added_image);
     return added_image;
   }
