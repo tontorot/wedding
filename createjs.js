@@ -30,13 +30,18 @@ $(function () {
   // 引数にfalseを指定するとXHRを使わずtagによる読み込みを行います
   var queue = new createjs.LoadQueue(true);
 
+  var BACKGROUND_IMAGE = "panorama";
+  var CAT_IMAGE = "cat_test";
+  var DANBORU_IMAGE = "danbo-ru";
+  var DANBORU_CAT_IMAGE = "danbo-rucat";
+  var COMPLETE_IMAGE = "complete";
   // 読み込むファイルの登録。
   var manifest = [
-      {"src":"panorama.JPG","id":"background_image"},
-      {"src":"cat_test.png","id":"cat"},
-      {"src":"danbo-ru.jpg","id":"danbo-ru"},
-      {"src":"danbo-rucat.jpg","id":"danbo-rucat"},
-      {"src":"complete.jpg","id":"complete"},
+      {"src":BACKGROUND_IMAGE+".JPG","id":BACKGROUND_IMAGE},
+      {"src":CAT_IMAGE+".png","id":CAT_IMAGE},
+      {"src":DANBORU_IMAGE+".jpg","id":DANBORU_IMAGE},
+      {"src":DANBORU_CAT_IMAGE+".jpg","id":DANBORU_CAT_IMAGE},
+      {"src":COMPLETE_IMAGE+".jpg","id":COMPLETE_IMAGE},
   ];
   // src,idともに省略可能。省略した場合はパスがsrcとidにセットされる
   // var manifest = ["./image1.jpg","./image2.jpg","./image3.jpg"];
@@ -106,15 +111,15 @@ $(function () {
     container2 = new createjs.Container();
     stage.addChild(container);
     stage.addChild(container2);
-    addImage(container, "background_image", 0, 0);
+    addImage(container, BACKGROUND_IMAGE, 0, 0);
 
     // ダンボール画像を表示。隠れてる猫と同じ数だけ
     $.each(data,function(index,val){
       console.log("index = "+index);
-      added_image = addImage(container2, "danbo-ru", hit_offset_x + index * hit_width, hit_offset_y);
+      added_image = addImage(container2, DANBORU_IMAGE, hit_offset_x + index * hit_width, hit_offset_y);
       child_data[index] = added_image;
     });
-    background_image_width = loaded_image_list["background_image"].width * resize_ratio;
+    background_image_width = loaded_image_list[BACKGROUND_IMAGE].width * resize_ratio;
     createjs.Touch.enable(stage);
     // TODO:デバコマ 削除予定
     $("#textbox").text(total_diff_x);
@@ -224,10 +229,10 @@ $(function () {
       {
         console.log("is_clicked, drawCat at ("+hit_point_x+","+hit_point_y+")");
         // 探し当てられた猫を表示する
-        addImage(container,"cat",hit_point_x,hit_point_y);
+        addImage(container,CAT_IMAGE,hit_point_x,hit_point_y);
         // ダンボール画像を削除して、開封後画像に置換
         container2.removeChild(child_data[index]);
-        added_image = addImage(container2, "danbo-rucat", hit_offset_x + index * hit_width, hit_offset_y);
+        added_image = addImage(container2, DANBORU_CAT_IMAGE, hit_offset_x + index * hit_width, hit_offset_y);
         // この猫は見つけられたというフラグを立てる
         data[index]["is_open"] = true;
         is_once_open = true;
@@ -237,7 +242,7 @@ $(function () {
     if(is_complete())
     {
       // 達成画像を表示。時間差いれてもいいかも
-      addImage(container,"complete",640/2,480/2);
+      addImage(container,COMPLETE_IMAGE,640/2,480/2);
       console.log("complete");
     }
   }
