@@ -17,28 +17,49 @@ $(function () {
   //当たり判定用配列
   //連想配列
   var data ={
-      0:{"x":0,"y":0,"is_open":false}
+      0:{"x":320,"y":120,"is_open":false}
   };
+  // 現在表示している猫シルエットの子ポインタを格納する配列
   var child_data = {};
   var hit_width = 118;
   var hit_offset_x = 20;
   var hit_offset_y = 20;
+
+  // 吹き出し画像の子ポインタを維持する変数
+  var baloon_image = null;
+  // 暗転用画像の子ポインタを維持する変数
+  var dark_effect_image = null;
+  //チュートリアルステップを管理する用
+  var tutorial_step = 1;
+  var TUTORIAL_STEP_1 = 1;//開始時。ゲーム導入
+  var TUTORIAL_STEP_2 = 2;//画面暗転、ここをタッチしてみましょう
+  var TUTORIAL_STEP_3 = 3;//タッチ判定。狙いの箇所がタッチされたらうゆを表示
+  var TUTORIAL_STEP_4 = 4;//うゆ説明
+  var TUTORIAL_STEP_5 = 5;//見つけた猫は左上に表示されます
+  var TUTORIAL_STEP_6 = 6;//チュートリアルおわり？
+  var TUTORIAL_STEP_7 = 7;
+  var TUTORIAL_STEP_8 = 8;
+
 
   // LoadQueueのインスタンス作成
   // 引数にfalseを指定するとXHRを使わずtagによる読み込みを行います
   var queue = new createjs.LoadQueue(true);
 
   var BACKGROUND_IMAGE = "tutorial_background";
-  var CAT_IMAGE = "cat_test";
-  var DANBORU_IMAGE = "danbo-ru";
-  var DANBORU_CAT_IMAGE = "danbo-rucat";
+  var CAT_IMAGE = "normal_uyu_mini";
+  var SILHOUETTE_IMAGE = "normal_uyu_mini_silhouette";
+  var DARK_EFFECT = "dark_effect";
+  var BALOON_1 = "baloon";
+  var BALOON_2 = "baloon2";
   var COMPLETE_IMAGE = "complete";
   // 読み込むファイルの登録。
   var manifest = [
       {"src":BACKGROUND_IMAGE+".png","id":BACKGROUND_IMAGE},
       {"src":CAT_IMAGE+".png","id":CAT_IMAGE},
-      {"src":DANBORU_IMAGE+".jpg","id":DANBORU_IMAGE},
-      {"src":DANBORU_CAT_IMAGE+".jpg","id":DANBORU_CAT_IMAGE},
+      {"src":SILHOUETTE_IMAGE+".png","id":SILHOUETTE_IMAGE},
+      {"src":DARK_EFFECT+".png","id":DARK_EFFECT},
+      {"src":BALOON_1+".png","id":BALOON_1},
+      {"src":BALOON_2+".png","id":BALOON_2},
       {"src":COMPLETE_IMAGE+".jpg","id":COMPLETE_IMAGE},
   ];
   // src,idともに省略可能。省略した場合はパスがsrcとidにセットされる
@@ -110,17 +131,18 @@ $(function () {
     stage.addChild(container);
     stage.addChild(container2);
     addImage(container, BACKGROUND_IMAGE, 0, 0);
+    //背景表示後、吹き出し画像を置く
+    baloon_image = addImage(container, BALOON_1, 0, 0);
 
     // ダンボール画像を表示。隠れてる猫と同じ数だけ
     $.each(data,function(index,val){
-      console.log("index = "+index);
-      added_image = addImage(container2, DANBORU_IMAGE, hit_offset_x + index * hit_width, hit_offset_y);
+      added_image = addImage(container2, SILHOUETTE_IMAGE, hit_offset_x + index * hit_width, hit_offset_y);
       child_data[index] = added_image;
     });
     background_image_width = loaded_image_list[BACKGROUND_IMAGE].width * resize_ratio;
+
+
     createjs.Touch.enable(stage);
-    // TODO:デバコマ 削除予定
-    $("#textbox").text(total_diff_x);
     // Stageの描画を更新します
     stage.update();
   }
@@ -146,17 +168,49 @@ $(function () {
   var total_diff_x = 0;
   var total_diff_y = 0;
   function onDown(e) {
-    in_drag = true;
-    before_x = e.clientX - canvas.offsetLeft;
-    openCheck(e.clientX, e.clientY);
-    console.log("(x,y) = ("+e.clientX+","+e.clientY+")");
-    // $("#textbox").text(JSON.stringify(e));
+    // in_drag = true;
+    // before_x = e.clientX - canvas.offsetLeft;
+    // openCheck(e.clientX, e.clientY);
+    atClicked(e.clientX, e.clientY);
   }
   function onTouch(e) {
+    // in_drag = true;
+    // before_x = e.touches[0].clientX - canvas.offsetLeft;
+    // openCheck(e.touches[0].clientX, e.touches[0].clientY);
+    atClicked(e.touches[0].clientX, e.touches[0].clientY);
+  }
+  function atClicked(click_x,click_y)
+  {
     in_drag = true;
-    before_x = e.touches[0].clientX - canvas.offsetLeft;
-    openCheck(e.touches[0].clientX, e.touches[0].clientY);
-    // $("#textbox").text(JSON.stringify(e.touches[0].clientX));
+    before_x = click_x - canvas.offsetLeft;
+
+    //チュートリアルの状況に応じて、クリック時の挙動を変更
+    switch(tutorial_step)
+    {
+      case TUTORIAL_STEP_1:
+        display_new_baloon(BALOON_2);
+        dark_effect_image = addImage(container, DARK_EFFECT, 0, 0);
+        tutorial_step = TUTORIAL_STEP_2;
+        break;
+      case TUTORIAL_STEP_2:
+        if(openCheck(click_x,click_y))
+        {
+          tutorial_step = TUTORIAL_STEP_3;
+        }
+        break;
+      case TUTORIAL_STEP_3:
+        break;
+      case TUTORIAL_STEP_4:
+        break;
+      default:
+        break;
+    }
+  }
+
+  function display_new_baloon(baloon_name)
+  {
+    container.removeChild(baloon_image);
+    baloon_image = addImage(container, baloon_name, 0, 0);
   }
   function onUp(e) {
     in_drag = false;
@@ -230,19 +284,20 @@ $(function () {
         addImage(container,CAT_IMAGE,hit_point_x,hit_point_y);
         // ダンボール画像を削除して、開封後画像に置換
         container2.removeChild(child_data[index]);
-        added_image = addImage(container2, DANBORU_CAT_IMAGE, hit_offset_x + index * hit_width, hit_offset_y);
+        added_image = addImage(container2, CAT_IMAGE, hit_offset_x + index * hit_width, hit_offset_y);
         // この猫は見つけられたというフラグを立てる
         data[index]["is_open"] = true;
         is_once_open = true;
       }
     }
     //フラグが折れていなかったら、complete画像を表示
-    if(is_complete())
-    {
-      // 達成画像を表示。時間差いれてもいいかも
-      addImage(container,COMPLETE_IMAGE,640/2,480/2);
-      console.log("complete");
-    }
+    // if(is_complete())
+    // {
+    //   // 達成画像を表示。時間差いれてもいいかも
+    //   addImage(container,COMPLETE_IMAGE,640/2,480/2);
+    //   console.log("complete");
+    // }
+    return is_once_open;
   }
   //猫画像がすべてオープンになっているかチェックする
   function is_complete()
