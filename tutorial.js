@@ -14,6 +14,8 @@ $(function () {
   var canvas_scaled_width = 0;
   var loaded_image_list = {};
 
+  //猫のシルエットサイズ
+  var SILHOUETTE_SIZE_RATIO = 0.3;
   //当たり判定用配列
   //連想配列
   var data ={
@@ -29,6 +31,8 @@ $(function () {
   var baloon_image = null;
   // 暗転用画像の子ポインタを維持する変数
   var dark_effect_image = null;
+  // 猫説明画像の子ポインタを維持する変数
+  var cat_discription_image = null;
   //チュートリアルステップを管理する用
   var tutorial_step = 1;
   var TUTORIAL_STEP_1 = 1;//開始時。ゲーム導入
@@ -51,6 +55,9 @@ $(function () {
   var DARK_EFFECT = "dark_effect";
   var BALOON_1 = "baloon";
   var BALOON_2 = "baloon2";
+  var BALOON_3 = "baloon3";
+  var BALOON_4 = "baloon4";
+  var CAT_DISCRIPTION = "cat_discription";
   var COMPLETE_IMAGE = "complete";
   // 読み込むファイルの登録。
   var manifest = [
@@ -60,6 +67,9 @@ $(function () {
       {"src":DARK_EFFECT+".png","id":DARK_EFFECT},
       {"src":BALOON_1+".png","id":BALOON_1},
       {"src":BALOON_2+".png","id":BALOON_2},
+      {"src":BALOON_3+".png","id":BALOON_3},
+      {"src":BALOON_4+".png","id":BALOON_4},
+      {"src":CAT_DISCRIPTION+".png","id":CAT_DISCRIPTION},
       {"src":COMPLETE_IMAGE+".jpg","id":COMPLETE_IMAGE},
   ];
   // src,idともに省略可能。省略した場合はパスがsrcとidにセットされる
@@ -103,13 +113,6 @@ $(function () {
 
     canvas.addEventListener('mousedown', onDown, false);
     canvas.addEventListener('touchstart', onTouch, false);
-    canvas.addEventListener('mouseup', onUp, false);
-    canvas.addEventListener('touchend', onUp, false);
-    canvas.addEventListener('mousemove', onMove, false);
-    canvas.addEventListener('touchmove', onSwipe, false);
-    //canvas.addEventListener('click', onClick, false);
-    canvas.addEventListener('mouseover', onOver, false);
-    canvas.addEventListener('mouseout', onOut, false);
 
     var window_width = window.innerWidth;
     var window_height = window.innerHeight;
@@ -136,7 +139,7 @@ $(function () {
 
     // ダンボール画像を表示。隠れてる猫と同じ数だけ
     $.each(data,function(index,val){
-      added_image = addImage(container2, SILHOUETTE_IMAGE, hit_offset_x + index * hit_width, hit_offset_y);
+      added_image = addImage(container2, SILHOUETTE_IMAGE, hit_offset_x + index * hit_width, hit_offset_y , SILHOUETTE_SIZE_RATIO);
       child_data[index] = added_image;
     });
     background_image_width = loaded_image_list[BACKGROUND_IMAGE].width * resize_ratio;
@@ -151,11 +154,12 @@ $(function () {
    * @param image_name 読み込む画像名
    * @param image_x 画像を配置する座標（画像の左上の座標を参照
    */
-  function addImage(target_container,image_name,image_x,image_y)
+  function addImage(target_container,image_name,image_x,image_y,optional_resize_ratio=1)
   {
     //画像の左上の座標がimagex,image_yになる
     var added_image = new createjs.Bitmap(loaded_image_list[image_name]);
-    added_image.setTransform(image_x*resize_ratio,image_y*resize_ratio,resize_ratio,resize_ratio);
+
+    added_image.setTransform(image_x*resize_ratio,image_y*resize_ratio,resize_ratio*optional_resize_ratio,resize_ratio*optional_resize_ratio);
     target_container.addChild(added_image);
     return added_image;
   }
@@ -168,15 +172,9 @@ $(function () {
   var total_diff_x = 0;
   var total_diff_y = 0;
   function onDown(e) {
-    // in_drag = true;
-    // before_x = e.clientX - canvas.offsetLeft;
-    // openCheck(e.clientX, e.clientY);
     atClicked(e.clientX, e.clientY);
   }
   function onTouch(e) {
-    // in_drag = true;
-    // before_x = e.touches[0].clientX - canvas.offsetLeft;
-    // openCheck(e.touches[0].clientX, e.touches[0].clientY);
     atClicked(e.touches[0].clientX, e.touches[0].clientY);
   }
   function atClicked(click_x,click_y)
@@ -188,74 +186,52 @@ $(function () {
     switch(tutorial_step)
     {
       case TUTORIAL_STEP_1:
-        display_new_baloon(BALOON_2);
+        // この辺が怪しいよ、ここをタップしてね、と説明を入れる
+        container.removeChild(baloon_image);
+        baloon_image = addImage(container, BALOON_2, 0, 0);
         dark_effect_image = addImage(container, DARK_EFFECT, 0, 0);
         tutorial_step = TUTORIAL_STEP_2;
         break;
       case TUTORIAL_STEP_2:
+        // 猫を発見したら、数秒おいてから説明文を表示
         if(openCheck(click_x,click_y))
         {
-          tutorial_step = TUTORIAL_STEP_3;
+          var hoge = setInterval(function() {
+            //終了条件
+            tutorial_step = TUTORIAL_STEP_3;
+            cat_discription_image = addImage(container, CAT_DISCRIPTION, 0, 0);
+            clearInterval(hoge);
+          }, 1000);
         }
         break;
       case TUTORIAL_STEP_3:
+        // 説明文を表示した後にタップされたら、説明文を消してチュートリアル説明文を更新
+        container.removeChild(cat_discription_image);
+        container.removeChild(dark_effect_image);
+        container.removeChild(baloon_image);
+        baloon_image = addImage(container, BALOON_3, 0, 0);
+        tutorial_step = TUTORIAL_STEP_4;
+
         break;
       case TUTORIAL_STEP_4:
+        // 説明文を更新
+        container.removeChild(baloon_image);
+        baloon_image = addImage(container, BALOON_4, 0, 0);
+        tutorial_step = TUTORIAL_STEP_5;
+        break;
+      case TUTORIAL_STEP_5:
+        //リンクを貼る
+        tutorial_step = TUTORIAL_STEP_6;
+        window.location.href = './createjs.html';
         break;
       default:
         break;
     }
   }
 
-  function display_new_baloon(baloon_name)
-  {
-    container.removeChild(baloon_image);
-    baloon_image = addImage(container, baloon_name, 0, 0);
-  }
-  function onUp(e) {
-    in_drag = false;
-    // $("#textbox").text("onUp");
-  }
-  function onMove(e) {
-    moveContainer(e.clientX)
-  }
-  function onSwipe(e) {
-    moveContainer(e.touches[0].clientX);
-  }
-  function moveContainer(x)
-  {
-    if(in_drag)
-    {
-      after_x = x - canvas.offsetLeft;
-      var diff_x = after_x - before_x;
-      total_diff_x += diff_x;
-      before_x = after_x;
-      var min_total_diff_x = canvas_scaled_width - background_image_width;
-      //背景画像が一番左にいたら、それ以上右に引っ張れなくする
-      if(total_diff_x > 0)
-      {
-        total_diff_x = 0;
-      }
-      //背景画像が一番右にいたら、それ以上左に引っ張れなくする
-      else if(total_diff_x < min_total_diff_x)
-      {
-        total_diff_x = canvas_scaled_width - background_image_width;
-      }
-
-      $("#textbox").text(total_diff_x);
-      container.setTransform(total_diff_x,0);
-      stage.update();
-    }
-  }
-  function onOut() {
-    in_drag = false;
-  }
-
   function onClick(e) {
-    // console.log("click");
     var x = e.clientX - canvas.offsetLeft;
     var y = e.clientY - canvas.offsetTop;
-    // console.log("x:", x, "y:", y);
     //openCheck(x,y);
   }
   function openCheck(x,y)
@@ -284,35 +260,12 @@ $(function () {
         addImage(container,CAT_IMAGE,hit_point_x,hit_point_y);
         // ダンボール画像を削除して、開封後画像に置換
         container2.removeChild(child_data[index]);
-        added_image = addImage(container2, CAT_IMAGE, hit_offset_x + index * hit_width, hit_offset_y);
+        added_image = addImage(container2, CAT_IMAGE, hit_offset_x + index * hit_width, hit_offset_y, SILHOUETTE_SIZE_RATIO);
         // この猫は見つけられたというフラグを立てる
         data[index]["is_open"] = true;
         is_once_open = true;
       }
     }
-    //フラグが折れていなかったら、complete画像を表示
-    // if(is_complete())
-    // {
-    //   // 達成画像を表示。時間差いれてもいいかも
-    //   addImage(container,COMPLETE_IMAGE,640/2,480/2);
-    //   console.log("complete");
-    // }
     return is_once_open;
-  }
-  //猫画像がすべてオープンになっているかチェックする
-  function is_complete()
-  {
-    var is_complete = true;
-    for(var index in data)
-    {
-      if(!data[index]["is_open"])
-      {
-        is_complete = false;
-      }
-    }
-    return is_complete;
-  }
-  function onOver(e) {
-    console.log("mouseover");
   }
 });
