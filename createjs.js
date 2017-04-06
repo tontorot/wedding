@@ -18,15 +18,16 @@ $(function () {
   //当たり判定用配列
   //連想配列
   var hidden_cat_data ={
-       0:{"x":0,  "y":0,   "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_jiji", "silhouette_image":"uyu_jiji_silhouette"}
-      ,1:{"x":200,"y":0,   "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_bus",  "silhouette_image":"uyu_bus_silhouette"}
-      ,2:{"x":320,"y":240, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"chibi",    "silhouette_image":"chibi_silhouette"}
-      ,3:{"x":400,"y":320, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"milk",     "silhouette_image":"milk_silhouette"}
+       0:{"x":0,  "y":100, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_jiji", "silhouette_image":"uyu_jiji_silhouette", "discription_image":"cat_discription"}
+      ,1:{"x":200,"y":0,   "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_bus",  "silhouette_image":"uyu_bus_silhouette",  "discription_image":"cat_discription"}
+      ,2:{"x":320,"y":240, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"chibi",    "silhouette_image":"chibi_silhouette",    "discription_image":"cat_discription"}
+      ,3:{"x":400,"y":320, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"milk",     "silhouette_image":"milk_silhouette",     "discription_image":"cat_discription"}
     };
-  var child_data = {};
+  var cat_discription_image = null;
   var hit_offset_x = 20;
   var hit_offset_y = 20;
 
+  var is_touch_forbidden = false;
   // LoadQueueのインスタンス作成
   // 引数にfalseを指定するとXHRを使わずtagによる読み込みを行います
   var queue = new createjs.LoadQueue(true);
@@ -42,8 +43,10 @@ $(function () {
   {
     var open_image_name = hidden_cat_data[index]["open_image"];
     var silhouette_image_name = hidden_cat_data[index]["silhouette_image"];
+    var discription_image_name = hidden_cat_data[index]["discription_image"];
     manifest.push({"src":open_image_name+".png","id":open_image_name});
     manifest.push({"src":silhouette_image_name+".png","id":silhouette_image_name});
+    manifest.push({"src":discription_image_name+".png","id":discription_image_name});
   }
 
   // manifestの読込
@@ -203,6 +206,17 @@ $(function () {
   }
   function openCheck(x,y)
   {
+    if(is_touch_forbidden)
+    {
+      return;
+    }
+    //猫の説明画面が出ていれば、それを削除する
+    var ret = container2.removeChild(cat_discription_image);
+    if(ret)
+    {
+      // 猫の説明画像が出ていて、削除された場合は、以降の猫探索処理を実行しない
+      return;
+    }
     var is_once_open = false;
     var width = 190; //クリックされた位置にでるネコ画像の横幅
     var height = 190; //クリックされた位置にでるネコ画像の縦幅
@@ -225,12 +239,19 @@ $(function () {
         // 探し当てられた猫を表示する
         addImage(container,hidden_cat_data[index]["open_image"],hit_point_x,hit_point_y);
         // ダンボール画像を削除して、開封後画像に置換
-        // container2.removeChild(child_data[index]);
         container2.removeChild(hidden_cat_data[index]["image_buff"]);
         added_image = addImage(container2, hidden_cat_data[index]["open_image"], hidden_cat_data[index]["hit_offset_x"], hit_offset_y, cat_list_resize_ratio);
         // この猫は見つけられたというフラグを立てる
         hidden_cat_data[index]["is_open"] = true;
         is_once_open = true;
+
+        is_touch_forbidden = true;
+        // 1秒後に猫説明を表示
+        var hoge = setInterval(function() {
+          cat_discription_image = addImage(container2, hidden_cat_data[index]["discription_image"], 0, 0);
+          is_touch_forbidden = false;
+          clearInterval(hoge);
+        }, 1000);
       }
     }
     //フラグが折れていなかったら、complete画像を表示
