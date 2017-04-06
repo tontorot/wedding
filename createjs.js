@@ -28,6 +28,7 @@ $(function () {
   var hit_offset_y = 20;
 
   var is_touch_forbidden = false;
+  var keeped_cat_index = null;
   // LoadQueueのインスタンス作成
   // 引数にfalseを指定するとXHRを使わずtagによる読み込みを行います
   var queue = new createjs.LoadQueue(true);
@@ -214,9 +215,14 @@ $(function () {
     var ret = container2.removeChild(cat_discription_image);
     if(ret)
     {
+      is_complete();
+      // ダンボール画像を削除して、開封後画像に置換
+      container2.removeChild(hidden_cat_data[keeped_cat_index]["image_buff"]);
+      added_image = addImage(container2, hidden_cat_data[keeped_cat_index]["open_image"], hidden_cat_data[keeped_cat_index]["hit_offset_x"], hit_offset_y, cat_list_resize_ratio);
       // 猫の説明画像が出ていて、削除された場合は、以降の猫探索処理を実行しない
       return;
     }
+    keeped_cat_index = null;
     var is_once_open = false;
     var width = 190; //クリックされた位置にでるネコ画像の横幅
     var height = 190; //クリックされた位置にでるネコ画像の縦幅
@@ -237,43 +243,38 @@ $(function () {
           hit_point_y < y && y < hit_point_y + height * canvas_resize_ratio)
       {
         // 探し当てられた猫を表示する
-        addImage(container,hidden_cat_data[index]["open_image"],hit_point_x,hit_point_y);
-        // ダンボール画像を削除して、開封後画像に置換
-        container2.removeChild(hidden_cat_data[index]["image_buff"]);
-        added_image = addImage(container2, hidden_cat_data[index]["open_image"], hidden_cat_data[index]["hit_offset_x"], hit_offset_y, cat_list_resize_ratio);
+        var get_cat = addImage(container,hidden_cat_data[index]["open_image"],hit_point_x,hit_point_y);
         // この猫は見つけられたというフラグを立てる
         hidden_cat_data[index]["is_open"] = true;
         is_once_open = true;
 
         is_touch_forbidden = true;
+        // 1秒後に説明を表示する猫番号を一時変数に格納
+        keeped_cat_index = index;
         // 1秒後に猫説明を表示
         var hoge = setInterval(function() {
+          // 見つかった猫は消して
+          container.removeChild(get_cat);
+          // 猫の説明を表示する
           cat_discription_image = addImage(container2, hidden_cat_data[index]["discription_image"], 0, 0);
           is_touch_forbidden = false;
           clearInterval(hoge);
         }, 1000);
       }
     }
-    //フラグが折れていなかったら、complete画像を表示
-    if(is_complete())
-    {
-      // 達成画像を表示。時間差いれてもいいかも
-      addImage(container,COMPLETE_IMAGE,640/2,480/2);
-      console.log("complete");
-    }
   }
   //猫画像がすべてオープンになっているかチェックする
   function is_complete()
   {
-    var is_complete = true;
     for(var index in hidden_cat_data)
     {
       if(!hidden_cat_data[index]["is_open"])
       {
-        is_complete = false;
+        return false;
       }
     }
-    return is_complete;
+    addImage(container,COMPLETE_IMAGE,640/2,480/2);
+    return true;
   }
   function onOver(e) {
     console.log("mouseover");
