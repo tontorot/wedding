@@ -24,7 +24,6 @@ $(function () {
       ,3:{"x":400,"y":320, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"milk",     "silhouette_image":"milk_silhouette"}
     };
   var child_data = {};
-  var hit_width = 118;
   var hit_offset_x = 20;
   var hit_offset_y = 20;
 
@@ -33,35 +32,12 @@ $(function () {
   var queue = new createjs.LoadQueue(true);
 
   var BACKGROUND_IMAGE = "panorama";
-  // var cat_image_buff1 = null;
-  // var CAT_IMAGE_1 = "uyu_jiji";
-  // var CAT_IMAGE_1_SILHOUETE = "uyu_jiji_silhouette";
-  // var cat_image_buff1 = null;
-  // var CAT_IMAGE_2 = "uyu_bus";
-  // var CAT_IMAGE_2_SILHOUETE = "uyu_bus_silhouette";
-  // var cat_image_buff1 = null;
-  // var CAT_IMAGE_3 = "chibi";
-  // var CAT_IMAGE_3_SILHOUETE = "chibi_silhouette";
-  // var cat_image_buff1 = null;
-  // var CAT_IMAGE_4 = "milk";
-  // var CAT_IMAGE_4_SILHOUETE = "milk_silhouette";
   var COMPLETE_IMAGE = "complete";
   // 読み込むファイルの登録。
   var manifest = [
       {"src":BACKGROUND_IMAGE+".JPG","id":BACKGROUND_IMAGE},
-      // {"src":CAT_IMAGE_1+".png","id":CAT_IMAGE_1},
-      // {"src":CAT_IMAGE_1_SILHOUETE+".png","id":CAT_IMAGE_1_SILHOUETE},
-      // {"src":CAT_IMAGE_2+".png","id":CAT_IMAGE_2},
-      // {"src":CAT_IMAGE_2_SILHOUETE+".png","id":CAT_IMAGE_2_SILHOUETE},
-      // {"src":CAT_IMAGE_3+".png","id":CAT_IMAGE_3},
-      // {"src":CAT_IMAGE_3_SILHOUETE+".png","id":CAT_IMAGE_3_SILHOUETE},
-      // {"src":CAT_IMAGE_4+".png","id":CAT_IMAGE_4},
-      // {"src":CAT_IMAGE_4_SILHOUETE+".png","id":CAT_IMAGE_4_SILHOUETE},
-      // {"src":DANBORU_IMAGE+".jpg","id":DANBORU_IMAGE},
-      // {"src":DANBORU_CAT_IMAGE+".jpg","id":DANBORU_CAT_IMAGE},
       {"src":COMPLETE_IMAGE+".jpg","id":COMPLETE_IMAGE},
   ];
-console.log(manifest);
   for(var index in hidden_cat_data)
   {
     var open_image_name = hidden_cat_data[index]["open_image"];
@@ -69,7 +45,6 @@ console.log(manifest);
     manifest.push({"src":open_image_name+".png","id":open_image_name});
     manifest.push({"src":silhouette_image_name+".png","id":silhouette_image_name});
   }
-console.log(manifest);
 
   // manifestの読込
   queue.loadManifest(manifest,true);
@@ -138,12 +113,9 @@ console.log(manifest);
     // 猫分布を表示。隠れてる猫と同じ数だけ
     $.each(hidden_cat_data,function(index,hidden_cat){
       added_image = addImage(container2, hidden_cat["silhouette_image"], hit_offset_x, hit_offset_y, cat_list_resize_ratio);
-      //child_data[index] = added_image;
       hidden_cat_data[index]["image_buff"] = added_image;
       hidden_cat_data[index]["hit_offset_x"] = hit_offset_x;
-      // hit_offset_x += added_image.width;
       hit_offset_x += added_image.getBounds().width * canvas_resize_ratio * cat_list_resize_ratio;
-      console.log("hit_offset_x = "+hit_offset_x);
     });
     background_image_width = loaded_image_list[BACKGROUND_IMAGE].width * canvas_resize_ratio;
     createjs.Touch.enable(stage);
@@ -226,11 +198,8 @@ console.log(manifest);
   }
 
   function onClick(e) {
-    // console.log("click");
     var x = e.clientX - canvas.offsetLeft;
     var y = e.clientY - canvas.offsetTop;
-    // console.log("x:", x, "y:", y);
-    //openCheck(x,y);
   }
   function openCheck(x,y)
   {
@@ -253,9 +222,6 @@ console.log(manifest);
       if( hit_point_x < x && x < hit_point_x + width * canvas_resize_ratio &&
           hit_point_y < y && y < hit_point_y + height * canvas_resize_ratio)
       {
-        console.log(hidden_cat_data[index]):
-        console.log("is_clicked, drawCat at ("+hit_point_x+","+hit_point_y+")");
-        console.log("cat_name = "+hidden_cat_data[index]["open_image"]);
         // 探し当てられた猫を表示する
         addImage(container,hidden_cat_data[index]["open_image"],hit_point_x,hit_point_y);
         // ダンボール画像を削除して、開封後画像に置換
