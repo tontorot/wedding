@@ -6,7 +6,8 @@ $(function () {
   // Stageオブジェクトを作成します
   var stage = new createjs.Stage("canvas");
 
-  var resize_ratio = 1;
+  var canvas_resize_ratio = 1;
+  var cat_list_resize_ratio = 0.3;
   var container = null;
   var container2 = null;
   var background_image_width = 0;
@@ -16,11 +17,12 @@ $(function () {
 
   //当たり判定用配列
   //連想配列
-  var data ={
-      0:{"x":0,"y":0,"is_open":false}
-      ,1:{"x":200,"y":0,"is_open":false}
-      ,2:{"x":320,"y":240,"is_open":false}
-  };
+  var hidden_cat_data ={
+       0:{"x":0,  "y":0,   "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_jiji", "silhouette_image":"uyu_jiji_silhouette"}
+      ,1:{"x":200,"y":0,   "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_bus",  "silhouette_image":"uyu_bus_silhouette"}
+      ,2:{"x":320,"y":240, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"chibi",    "silhouette_image":"chibi_silhouette"}
+      ,3:{"x":400,"y":320, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"milk",     "silhouette_image":"milk_silhouette"}
+    };
   var child_data = {};
   var hit_width = 118;
   var hit_offset_x = 20;
@@ -31,26 +33,46 @@ $(function () {
   var queue = new createjs.LoadQueue(true);
 
   var BACKGROUND_IMAGE = "panorama";
-  var CAT_IMAGE = "cat_test";
-  var DANBORU_IMAGE = "danbo-ru";
-  var DANBORU_CAT_IMAGE = "danbo-rucat";
+  // var cat_image_buff1 = null;
+  // var CAT_IMAGE_1 = "uyu_jiji";
+  // var CAT_IMAGE_1_SILHOUETE = "uyu_jiji_silhouette";
+  // var cat_image_buff1 = null;
+  // var CAT_IMAGE_2 = "uyu_bus";
+  // var CAT_IMAGE_2_SILHOUETE = "uyu_bus_silhouette";
+  // var cat_image_buff1 = null;
+  // var CAT_IMAGE_3 = "chibi";
+  // var CAT_IMAGE_3_SILHOUETE = "chibi_silhouette";
+  // var cat_image_buff1 = null;
+  // var CAT_IMAGE_4 = "milk";
+  // var CAT_IMAGE_4_SILHOUETE = "milk_silhouette";
   var COMPLETE_IMAGE = "complete";
   // 読み込むファイルの登録。
   var manifest = [
       {"src":BACKGROUND_IMAGE+".JPG","id":BACKGROUND_IMAGE},
-      {"src":CAT_IMAGE+".png","id":CAT_IMAGE},
-      {"src":DANBORU_IMAGE+".jpg","id":DANBORU_IMAGE},
-      {"src":DANBORU_CAT_IMAGE+".jpg","id":DANBORU_CAT_IMAGE},
+      // {"src":CAT_IMAGE_1+".png","id":CAT_IMAGE_1},
+      // {"src":CAT_IMAGE_1_SILHOUETE+".png","id":CAT_IMAGE_1_SILHOUETE},
+      // {"src":CAT_IMAGE_2+".png","id":CAT_IMAGE_2},
+      // {"src":CAT_IMAGE_2_SILHOUETE+".png","id":CAT_IMAGE_2_SILHOUETE},
+      // {"src":CAT_IMAGE_3+".png","id":CAT_IMAGE_3},
+      // {"src":CAT_IMAGE_3_SILHOUETE+".png","id":CAT_IMAGE_3_SILHOUETE},
+      // {"src":CAT_IMAGE_4+".png","id":CAT_IMAGE_4},
+      // {"src":CAT_IMAGE_4_SILHOUETE+".png","id":CAT_IMAGE_4_SILHOUETE},
+      // {"src":DANBORU_IMAGE+".jpg","id":DANBORU_IMAGE},
+      // {"src":DANBORU_CAT_IMAGE+".jpg","id":DANBORU_CAT_IMAGE},
       {"src":COMPLETE_IMAGE+".jpg","id":COMPLETE_IMAGE},
   ];
-  // src,idともに省略可能。省略した場合はパスがsrcとidにセットされる
-  // var manifest = ["./image1.jpg","./image2.jpg","./image3.jpg"];
+console.log(manifest);
+  for(var index in hidden_cat_data)
+  {
+    var open_image_name = hidden_cat_data[index]["open_image"];
+    var silhouette_image_name = hidden_cat_data[index]["silhouette_image"];
+    manifest.push({"src":open_image_name+".png","id":open_image_name});
+    manifest.push({"src":silhouette_image_name+".png","id":silhouette_image_name});
+  }
+console.log(manifest);
 
   // manifestの読込
   queue.loadManifest(manifest,true);
-  // 任意のタイミングで読込を開始したい場合、第2引数にfalseを指定し、queue.load()を実行する
-  // queue.loadManifest(manifest,false);
-  // queue.load();
 
   // ファイルが1つ読込完了するたびにfileloadイベントが発生
   // fileloadイベントにメソッドを割り当てる
@@ -96,16 +118,16 @@ $(function () {
     var window_height = window.innerHeight;
     if(window_width > window_height)
     {
-      resize_ratio = window_height / 480;
+      canvas_resize_ratio = window_height / 480;
     }
     else
     {
-      resize_ratio = window_width / 640;
+      canvas_resize_ratio = window_width / 640;
     }
-    console.log("resize_ratio = "+resize_ratio);
-    canvas_scaled_width = 640 * resize_ratio;
+    console.log("canvas_resize_ratio = "+canvas_resize_ratio);
+    canvas_scaled_width = 640 * canvas_resize_ratio;
     canvas.setAttribute("width", canvas_scaled_width);
-    canvas.setAttribute("height", 480 * resize_ratio);
+    canvas.setAttribute("height", 480 * canvas_resize_ratio);
 
     container = new createjs.Container();
     container2 = new createjs.Container();
@@ -113,13 +135,17 @@ $(function () {
     stage.addChild(container2);
     addImage(container, BACKGROUND_IMAGE, 0, 0);
 
-    // ダンボール画像を表示。隠れてる猫と同じ数だけ
-    $.each(data,function(index,val){
-      console.log("index = "+index);
-      added_image = addImage(container2, DANBORU_IMAGE, hit_offset_x + index * hit_width, hit_offset_y);
-      child_data[index] = added_image;
+    // 猫分布を表示。隠れてる猫と同じ数だけ
+    $.each(hidden_cat_data,function(index,hidden_cat){
+      added_image = addImage(container2, hidden_cat["silhouette_image"], hit_offset_x, hit_offset_y, cat_list_resize_ratio);
+      //child_data[index] = added_image;
+      hidden_cat_data[index]["image_buff"] = added_image;
+      hidden_cat_data[index]["hit_offset_x"] = hit_offset_x;
+      // hit_offset_x += added_image.width;
+      hit_offset_x += added_image.getBounds().width * canvas_resize_ratio * cat_list_resize_ratio;
+      console.log("hit_offset_x = "+hit_offset_x);
     });
-    background_image_width = loaded_image_list[BACKGROUND_IMAGE].width * resize_ratio;
+    background_image_width = loaded_image_list[BACKGROUND_IMAGE].width * canvas_resize_ratio;
     createjs.Touch.enable(stage);
     // TODO:デバコマ 削除予定
     $("#textbox").text(total_diff_x);
@@ -131,11 +157,11 @@ $(function () {
    * @param image_name 読み込む画像名
    * @param image_x 画像を配置する座標（画像の左上の座標を参照
    */
-  function addImage(target_container,image_name,image_x,image_y)
+  function addImage(target_container,image_name,image_x,image_y,optional_resize_ratio=1)
   {
     //画像の左上の座標がimagex,image_yになる
     var added_image = new createjs.Bitmap(loaded_image_list[image_name]);
-    added_image.setTransform(image_x*resize_ratio,image_y*resize_ratio,resize_ratio,resize_ratio);
+    added_image.setTransform(image_x*canvas_resize_ratio,image_y*canvas_resize_ratio,canvas_resize_ratio*optional_resize_ratio,canvas_resize_ratio*optional_resize_ratio);
     target_container.addChild(added_image);
     return added_image;
   }
@@ -211,30 +237,33 @@ $(function () {
     var is_once_open = false;
     var width = 190; //クリックされた位置にでるネコ画像の横幅
     var height = 190; //クリックされた位置にでるネコ画像の縦幅
-    for(var index in data)
+    for(var index in hidden_cat_data)
     {
       if(is_once_open)
       {
         continue;
       }
-      if(data[index]["is_open"])
+      if(hidden_cat_data[index]["is_open"])
       {
         continue;
       }
-      var hit_point_x = data[index]["x"]; //画像左上のx座標
-      var hit_point_y = data[index]["y"]; //画像左上のy座標
+      var hit_point_x = hidden_cat_data[index]["x"]; //画像左上のx座標
+      var hit_point_y = hidden_cat_data[index]["y"]; //画像左上のy座標
       // 画像もresize_ratioの分引き伸ばされているので、それを加味した当たり判定チェック
-      if( hit_point_x < x && x < hit_point_x + width * resize_ratio &&
-          hit_point_y < y && y < hit_point_y + height * resize_ratio)
+      if( hit_point_x < x && x < hit_point_x + width * canvas_resize_ratio &&
+          hit_point_y < y && y < hit_point_y + height * canvas_resize_ratio)
       {
+        console.log(hidden_cat_data[index]):
         console.log("is_clicked, drawCat at ("+hit_point_x+","+hit_point_y+")");
+        console.log("cat_name = "+hidden_cat_data[index]["open_image"]);
         // 探し当てられた猫を表示する
-        addImage(container,CAT_IMAGE,hit_point_x,hit_point_y);
+        addImage(container,hidden_cat_data[index]["open_image"],hit_point_x,hit_point_y);
         // ダンボール画像を削除して、開封後画像に置換
-        container2.removeChild(child_data[index]);
-        added_image = addImage(container2, DANBORU_CAT_IMAGE, hit_offset_x + index * hit_width, hit_offset_y);
+        // container2.removeChild(child_data[index]);
+        container2.removeChild(hidden_cat_data[index]["image_buff"]);
+        added_image = addImage(container2, hidden_cat_data[index]["open_image"], hidden_cat_data[index]["hit_offset_x"], hit_offset_y, cat_list_resize_ratio);
         // この猫は見つけられたというフラグを立てる
-        data[index]["is_open"] = true;
+        hidden_cat_data[index]["is_open"] = true;
         is_once_open = true;
       }
     }
@@ -250,9 +279,9 @@ $(function () {
   function is_complete()
   {
     var is_complete = true;
-    for(var index in data)
+    for(var index in hidden_cat_data)
     {
-      if(!data[index]["is_open"])
+      if(!hidden_cat_data[index]["is_open"])
       {
         is_complete = false;
       }
