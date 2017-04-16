@@ -11,8 +11,10 @@ $(function () {
   var container = null;
   var container2 = null;
   var background_image_width = 0;
+  var background_image_height = 0;
 
   var canvas_scaled_width = 0;
+  var canvas_scaled_height = 0;
   var loaded_image_list = {};
 
   /**
@@ -34,6 +36,11 @@ $(function () {
       ,"chibi"   :{"x":320,"y":240, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"chibi",    "silhouette_image":"chibi_silhouette",    "discription_image":"cat_discription"}
       ,"milk"    :{"x":400,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"milk",     "silhouette_image":"milk_silhouette",     "discription_image":"cat_discription"}
     };
+  // 今何階にいるか。初期値1階。
+  var now_floor = 1;
+  // 2Fに上がるための当たり判定
+  var to_upstairs_rectangle = {"x":1000,"y":200,"width":132, "height":162};
+  var to_downstairs_rectangle = {"x":1000,"y":200,"width":132, "height":162};
 
   var cat_discription_image = null;
   var hit_offset_x = 20;
@@ -45,11 +52,15 @@ $(function () {
   // 引数にfalseを指定するとXHRを使わずtagによる読み込みを行います
   var queue = new createjs.LoadQueue(true);
 
-  var BACKGROUND_IMAGE = "panorama";
+  var BACKGROUND_IMAGE_0F = "0F_white";
+  var BACKGROUND_IMAGE_1F = "1F";
+  var BACKGROUND_IMAGE_2F = "2F";
   var COMPLETE_IMAGE = "complete";
   // 読み込むファイルの登録。
   var manifest = [
-      {"src":BACKGROUND_IMAGE+".JPG","id":BACKGROUND_IMAGE},
+      {"src":BACKGROUND_IMAGE_0F+".png","id":BACKGROUND_IMAGE_0F},
+      {"src":BACKGROUND_IMAGE_1F+".png","id":BACKGROUND_IMAGE_1F},
+      {"src":BACKGROUND_IMAGE_2F+".png","id":BACKGROUND_IMAGE_2F},
       {"src":COMPLETE_IMAGE+".jpg","id":COMPLETE_IMAGE},
   ];
   for(var index in hidden_cat_data)
@@ -71,6 +82,7 @@ $(function () {
   // 全ファイルの読み込みが終わった時completeイベントが発生する
   queue.addEventListener("complete",handleComplete);
 
+  // 画面幅が変わったとき、キャンバスサイズを変更するためのイベントを追加
   var resize_queue = null;
   var resize_container = document.getElementById("canvasContainer");
   setCanvasSize();
@@ -86,7 +98,6 @@ $(function () {
   function setCanvasSize() {
     canvas.width = resize_container.offsetWidth;
     canvas.height = resize_container.offsetHeight;
-console.log("width,height = "+canvas.width+","+canvas.height);
     canvas_scaled_width = canvas.width;
   }
 
@@ -94,6 +105,7 @@ console.log("width,height = "+canvas.width+","+canvas.height);
   // ファイルが1つ読込完了すると呼ばれる。引数にファイルの読込結果を含むオブジェクトが渡される
   function handleFileLoad(event){
     // .itemにはファイルの情報が格納されています。詳細は後述
+    // 読み込んだ画像が猫画像のとき
     if(hidden_cat_data[event.item.id])
     {
       // 読み込んだ画像がネコ画像であったなら、その画像の横幅・縦幅の情報を更新
@@ -149,18 +161,23 @@ console.log("width,height = "+canvas.width+","+canvas.height);
     container2 = new createjs.Container();
     stage.addChild(container);
     stage.addChild(container2);
-    addImage(container, BACKGROUND_IMAGE, 0, 0);
+    addImage(container, BACKGROUND_IMAGE_1F, 0, 0);
 
     // 猫分布を表示。隠れてる猫と同じ数だけ
     $.each(hidden_cat_data,function(index,hidden_cat){
       added_image = addImage(container2, hidden_cat["silhouette_image"], hit_offset_x, hit_offset_y, cat_list_resize_ratio);
       hidden_cat_data[index]["image_buff"] = added_image;
       hidden_cat_data[index]["hit_offset_x"] = hit_offset_x;
-console.log("cats name = "+index);
-console.log(added_image.getBounds());
       hit_offset_x += added_image.getBounds().width * cat_list_resize_ratio;
     });
-    background_image_width = loaded_image_list[BACKGROUND_IMAGE].width * image_resize_ratio;
+    background_image_width = loaded_image_list[BACKGROUND_IMAGE_1F].width * image_resize_ratio;
+    background_image_height = loaded_image_list[BACKGROUND_IMAGE_1F].height * image_resize_ratio;
+
+    // 1F画像の高さがわかったので、2F画像を仕込んでおく。
+    addImage(container, BACKGROUND_IMAGE_2F, 0, -loaded_image_list[BACKGROUND_IMAGE_1F].height);
+    // 2F画像を表示すると、1F画像が下に表示されたままになってしまう。これを隠すために、コンテナ2に白い画像を置いておく。
+    addImage(container2, BACKGROUND_IMAGE_0F, 0,  loaded_image_list[BACKGROUND_IMAGE_1F].height);
+
     createjs.Touch.enable(stage);
     // TODO:デバコマ 削除予定
     $("#textbox").text(total_diff_x);
@@ -192,13 +209,14 @@ console.log(added_image.getBounds());
     in_drag = true;
     before_x = e.clientX - canvas.offsetLeft;
     openCheck(e.clientX - total_diff_x, e.clientY);
-    console.log("(x,y) = ("+e.clientX+","+e.clientY+")");
+    change_floor(e.clientX - total_diff_x, e.clientY);
     // $("#textbox").text(JSON.stringify(e));
   }
   function onTouch(e) {
     in_drag = true;
     before_x = e.touches[0].clientX - canvas.offsetLeft;
     openCheck(e.touches[0].clientX - total_diff_x, e.touches[0].clientY);
+    change_floor(e.touches[0].clientX - total_diff_x, e.touches[0].clientY);
     // $("#textbox").text(JSON.stringify(e.touches[0].clientX));
   }
   function onUp(e) {
@@ -206,12 +224,12 @@ console.log(added_image.getBounds());
     // $("#textbox").text("onUp");
   }
   function onMove(e) {
-    moveContainer(e.clientX)
+    moveContainer_x(e.clientX)
   }
   function onSwipe(e) {
-    moveContainer(e.touches[0].clientX);
+    moveContainer_x(e.touches[0].clientX);
   }
-  function moveContainer(x)
+  function moveContainer_x(x)
   {
     if(in_drag)
     {
@@ -232,7 +250,7 @@ console.log(added_image.getBounds());
       }
 
       $("#textbox").text(total_diff_x);
-      container.setTransform(total_diff_x,0);
+      container.setTransform(total_diff_x,total_diff_y);
       stage.update();
     }
   }
@@ -244,8 +262,54 @@ console.log(added_image.getBounds());
     var x = e.clientX - canvas.offsetLeft;
     var y = e.clientY - canvas.offsetTop;
   }
+
+  var is_change_floor_forbidden = false;
+  function change_floor(x,y)
+  {
+    console.log("(x,y) = ("+x+","+y+")");
+    //　二重発火対策
+    if(is_change_floor_forbidden)
+    {
+      return;
+    }
+    is_change_floor_forbidden = true;
+    switch(now_floor)
+    {
+      case 1:
+        // 2Fへ向かう当たり判定を踏んでいたら、2Fへ移動
+        if(to_upstairs_rectangle["x"] * image_resize_ratio < x &&
+           x < (to_upstairs_rectangle["x"] + to_upstairs_rectangle["x"]) * image_resize_ratio &&
+           to_upstairs_rectangle["y"] * image_resize_ratio < y &&
+           y < (to_upstairs_rectangle["y"] + to_upstairs_rectangle["y"]) * image_resize_ratio)
+        {
+          createjs.Tween.get(container).to({y:background_image_height}, 1000);
+          total_diff_y = background_image_height;
+          now_floor = 2;
+          stage.update();
+        }
+        break;
+      case 2:
+        // 1Fへ向かう当たり判定を踏んでいたら、1Fへ移動
+        if(to_downstairs_rectangle["x"] * image_resize_ratio < x &&
+           x < (to_downstairs_rectangle["x"] + to_downstairs_rectangle["x"]) * image_resize_ratio &&
+           to_downstairs_rectangle["y"] * image_resize_ratio < y &&
+           y < (to_downstairs_rectangle["y"] + to_downstairs_rectangle["y"]) * image_resize_ratio)
+        {
+          createjs.Tween.get(container).to({y:0}, 1000);
+          total_diff_y = 0;
+          now_floor = 1;
+          stage.update();
+        }
+        break;
+    }
+    var hoge = setInterval(function() {
+      is_change_floor_forbidden = false;
+      clearInterval(hoge);
+    }, 1000);
+  }
   function openCheck(x,y)
   {
+    console.log("(x,y) = ("+x+","+y+")");
     if(is_touch_forbidden)
     {
       return;
