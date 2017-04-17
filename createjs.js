@@ -32,7 +32,7 @@ $(function () {
    */
   var hidden_cat_data ={
        "uyu_jiji":{"x":0,  "y":100, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_jiji", "silhouette_image":"uyu_jiji_silhouette", "discription_image":"cat_discription"}
-      ,"uyu_bus" :{"x":200,"y":0,   "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_bus",  "silhouette_image":"uyu_bus_silhouette",  "discription_image":"cat_discription"}
+      ,"uyu_bus" :{"x":200,"y":-480,   "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_bus",  "silhouette_image":"uyu_bus_silhouette",  "discription_image":"cat_discription"}
       ,"chibi"   :{"x":320,"y":240, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"chibi",    "silhouette_image":"chibi_silhouette",    "discription_image":"cat_discription"}
       ,"milk"    :{"x":400,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"milk",     "silhouette_image":"milk_silhouette",     "discription_image":"cat_discription"}
     };
@@ -40,7 +40,7 @@ $(function () {
   var now_floor = 1;
   // 2Fに上がるための当たり判定
   var to_upstairs_rectangle = {"x":1000,"y":200,"width":132, "height":162};
-  var to_downstairs_rectangle = {"x":1000,"y":200,"width":132, "height":162};
+  var to_downstairs_rectangle = {"x":1000,"y":-280,"width":132, "height":162};
 
   var cat_discription_image = null;
   var hit_offset_x = 20;
@@ -133,9 +133,9 @@ $(function () {
     });
 
     canvas.addEventListener('mousedown', onDown, false);
-    canvas.addEventListener('touchstart', onTouch, false);
+    canvas.addEventListener('touchstart', touchStart, false);
     canvas.addEventListener('mouseup', onUp, false);
-    canvas.addEventListener('touchend', onUp, false);
+    canvas.addEventListener('touchend', touchEnd, false);
     canvas.addEventListener('mousemove', onMove, false);
     canvas.addEventListener('touchmove', onSwipe, false);
     //canvas.addEventListener('click', onClick, false);
@@ -199,29 +199,40 @@ $(function () {
   }
 
   var in_drag = false;
-  var before_x;
-  var before_y;
-  var after_x;
-  var after_y;
+  var before_x_for_move_container;
   var total_diff_x = 0;
   var total_diff_y = 0;
   function onDown(e) {
     in_drag = true;
-    before_x = e.clientX - canvas.offsetLeft;
-    openCheck(e.clientX - total_diff_x, e.clientY);
-    change_floor(e.clientX - total_diff_x, e.clientY);
-    // $("#textbox").text(JSON.stringify(e));
+    before_x_for_move_container = e.clientX - canvas.offsetLeft;
+    before_x_for_click = before_x_for_move_container;
   }
-  function onTouch(e) {
+  function touchStart(e) {
     in_drag = true;
-    before_x = e.touches[0].clientX - canvas.offsetLeft;
-    openCheck(e.touches[0].clientX - total_diff_x, e.touches[0].clientY);
-    change_floor(e.touches[0].clientX - total_diff_x, e.touches[0].clientY);
-    // $("#textbox").text(JSON.stringify(e.touches[0].clientX));
+    before_x_for_move_container = e.touches[0].clientX - canvas.offsetLeft;
+    before_x_for_click = before_x_for_move_container;
   }
   function onUp(e) {
     in_drag = false;
-    // $("#textbox").text("onUp");
+    var touched_x = e.clientX - total_diff_x;
+    var touched_y = e.clientY - total_diff_y;
+    var calc_right = e.clientX - canvas.offsetLeft; 
+    if(before_x_for_click == calc_right)
+    {
+      openCheck(touched_x, touched_y);
+      change_floor(touched_x, touched_y);
+    }
+  }
+  function touchEnd(e) {
+    in_drag = false;
+    var touched_x = e.touches[0].clientX - total_diff_x;
+    var touched_y = e.touches[0].clientY - total_diff_y;
+    var calc_right = e.touches[0].clientX - canvas.offsetLeft;
+    if(before_x_for_click == calc_right)
+    {
+      openCheck(touched_x, touched_y);
+      change_floor(touched_x, touched_y);
+    }
   }
   function onMove(e) {
     moveContainer_x(e.clientX)
@@ -233,10 +244,10 @@ $(function () {
   {
     if(in_drag)
     {
-      after_x = x - canvas.offsetLeft;
-      var diff_x = after_x - before_x;
+      var after_x = x - canvas.offsetLeft;
+      var diff_x = after_x - before_x_for_move_container;
       total_diff_x += diff_x;
-      before_x = after_x;
+      before_x_for_move_container = after_x;
       var min_total_diff_x = canvas_scaled_width - background_image_width;
       //背景画像が一番左にいたら、それ以上右に引っ張れなくする
       if(total_diff_x > 0)
@@ -266,7 +277,6 @@ $(function () {
   var is_change_floor_forbidden = false;
   function change_floor(x,y)
   {
-    console.log("(x,y) = ("+x+","+y+")");
     //　二重発火対策
     if(is_change_floor_forbidden)
     {
@@ -278,9 +288,9 @@ $(function () {
       case 1:
         // 2Fへ向かう当たり判定を踏んでいたら、2Fへ移動
         if(to_upstairs_rectangle["x"] * image_resize_ratio < x &&
-           x < (to_upstairs_rectangle["x"] + to_upstairs_rectangle["x"]) * image_resize_ratio &&
+           x < (to_upstairs_rectangle["x"] + to_upstairs_rectangle["width"]) * image_resize_ratio &&
            to_upstairs_rectangle["y"] * image_resize_ratio < y &&
-           y < (to_upstairs_rectangle["y"] + to_upstairs_rectangle["y"]) * image_resize_ratio)
+           y < (to_upstairs_rectangle["y"] + to_upstairs_rectangle["height"]) * image_resize_ratio)
         {
           createjs.Tween.get(container).to({y:background_image_height}, 1000);
           total_diff_y = background_image_height;
@@ -291,9 +301,9 @@ $(function () {
       case 2:
         // 1Fへ向かう当たり判定を踏んでいたら、1Fへ移動
         if(to_downstairs_rectangle["x"] * image_resize_ratio < x &&
-           x < (to_downstairs_rectangle["x"] + to_downstairs_rectangle["x"]) * image_resize_ratio &&
+           x < (to_downstairs_rectangle["x"] + to_downstairs_rectangle["width"]) * image_resize_ratio &&
            to_downstairs_rectangle["y"] * image_resize_ratio < y &&
-           y < (to_downstairs_rectangle["y"] + to_downstairs_rectangle["y"]) * image_resize_ratio)
+           y < (to_downstairs_rectangle["y"] + to_downstairs_rectangle["height"]) * image_resize_ratio)
         {
           createjs.Tween.get(container).to({y:0}, 1000);
           total_diff_y = 0;
@@ -306,10 +316,12 @@ $(function () {
       is_change_floor_forbidden = false;
       clearInterval(hoge);
     }, 1000);
+    console.log("total_diff_y = "+total_diff_y);
+
   }
   function openCheck(x,y)
   {
-    console.log("(x,y) = ("+x+","+y+")");
+    console.log("openCheck(x,y) = ("+x+","+y+")");
     if(is_touch_forbidden)
     {
       return;
