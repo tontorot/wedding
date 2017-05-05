@@ -1,32 +1,8 @@
-
-
 $(function () {
-  var canvas = document.getElementById("canvas");
 
-  // Stageオブジェクトを作成します
-  var stage = new createjs.Stage("canvas");
-
-  var resize_ratio = 1;
   var container = null;
-  var container2 = null;
-  var background_image_width = 0;
 
-  var canvas_scaled_width = 0;
-  var canvas_scaled_height = 0;
   var loaded_image_list = {};
-
-  //猫のシルエットサイズ
-  var SILHOUETTE_SIZE_RATIO = 0.3;
-  //当たり判定用配列
-  //連想配列
-  var data ={
-      0:{"x":320,"y":120,"is_open":false}
-  };
-  // 現在表示している猫シルエットの子ポインタを格納する配列
-  var child_data = {};
-  var hit_width = 118;
-  var hit_offset_x = 20;
-  var hit_offset_y = 20;
 
   //チュートリアルステップを管理する用
   var tutorial_step = 1;
@@ -39,11 +15,11 @@ $(function () {
   var OP_STEP_7 = 7;
   var OP_STEP_8 = 8;
 
-
   // LoadQueueのインスタンス作成
   // 引数にfalseを指定するとXHRを使わずtagによる読み込みを行います
   var queue = new createjs.LoadQueue(true);
 
+  // OP画像のポインタ格納用
   var op_image = null;
 
   var OP1 = "op1";
@@ -90,6 +66,7 @@ $(function () {
   function handleComplete(event){
     // completeハンドラに渡される引数が持っているgetResult()にidを指定してファイルオブジェクトを取得する
     // var file = event.getResult(id); manifestで指定したid
+    canvas_init();
     init();
   }
 
@@ -104,36 +81,6 @@ $(function () {
     canvas.addEventListener('mousedown', onDown, false);
     canvas.addEventListener('touchstart', onTouch, false);
 
-    var window_width = window.innerWidth;
-    var window_height = window.innerHeight;
-    var need_width = 1334;
-    var need_height = 750;
-    var canvas_top = 0;
-    var canvas_left = 0;
-    if(window_width/window_height > need_width/need_height)
-    {
-      //想定より横長だったので、縦幅を画面に合わせて、canvasを画面中央にするためちょっと右にずらす
-      resize_ratio = window_height / need_height;
-      canvas_scaled_width = need_width * resize_ratio;
-      canvas_scaled_height = need_height * resize_ratio;
-      canvas_left = (window_width - canvas_scaled_width) / 2;
-    }
-    else
-    {
-      //想定より縦長だったので、横幅を画面に合わせて、canvasを画面中央にするためちょっと下にずらす
-      resize_ratio = window_width / need_width;
-      canvas_scaled_width = need_width * resize_ratio;
-      canvas_scaled_height = need_height * resize_ratio;
-      canvas_top = (window_height - canvas_scaled_height) / 2;
-    }
-    console.log("resize_ratio = "+resize_ratio);
-    canvas_scaled_width = need_width * resize_ratio;
-    canvas.setAttribute("width", canvas_scaled_width);
-    canvas.setAttribute("height", canvas_scaled_height);
-    canvas.style.position = "absolute";
-    canvas.style.top = canvas_top + "px";
-    canvas.style.left = canvas_left + "px";
-
     container = new createjs.Container();
     stage.addChild(container);
     op_image = addImage(container, OP1, 0, 0);
@@ -142,6 +89,7 @@ $(function () {
     // Stageの描画を更新します
     stage.update();
   }
+  
   /**
    * @param target_container 画像を載せるコンテナ
    * @param image_name 読み込む画像名
@@ -157,13 +105,6 @@ $(function () {
     return added_image;
   }
 
-  var in_drag = false;
-  var before_x;
-  var before_y;
-  var after_x;
-  var after_y;
-  var total_diff_x = 0;
-  var total_diff_y = 0;
   function onDown(e) {
     atClicked(e.clientX, e.clientY);
   }
@@ -172,9 +113,6 @@ $(function () {
   }
   function atClicked(click_x,click_y)
   {
-    in_drag = true;
-    before_x = click_x - canvas.offsetLeft;
-
     //チュートリアルの状況に応じて、クリック時の挙動を変更
     switch(tutorial_step)
     {
@@ -210,45 +148,5 @@ $(function () {
       default:
         break;
     }
-  }
-
-  function onClick(e) {
-    var x = e.clientX - canvas.offsetLeft;
-    var y = e.clientY - canvas.offsetTop;
-    //openCheck(x,y);
-  }
-  function openCheck(x,y)
-  {
-    var is_once_open = false;
-    var width = 190; //クリックされた位置にでるネコ画像の横幅
-    var height = 190; //クリックされた位置にでるネコ画像の縦幅
-    for(var index in data)
-    {
-      if(is_once_open)
-      {
-        continue;
-      }
-      if(data[index]["is_open"])
-      {
-        continue;
-      }
-      var hit_point_x = data[index]["x"]; //画像左上のx座標
-      var hit_point_y = data[index]["y"]; //画像左上のy座標
-      // 画像もresize_ratioの分引き伸ばされているので、それを加味した当たり判定チェック
-      if( hit_point_x < x && x < hit_point_x + width * resize_ratio &&
-          hit_point_y < y && y < hit_point_y + height * resize_ratio)
-      {
-        console.log("is_clicked, drawCat at ("+hit_point_x+","+hit_point_y+")");
-        // 探し当てられた猫を表示する
-        addImage(container,CAT_IMAGE,hit_point_x,hit_point_y);
-        // ダンボール画像を削除して、開封後画像に置換
-        container2.removeChild(child_data[index]);
-        added_image = addImage(container2, CAT_IMAGE, hit_offset_x + index * hit_width, hit_offset_y, SILHOUETTE_SIZE_RATIO);
-        // この猫は見つけられたというフラグを立てる
-        data[index]["is_open"] = true;
-        is_once_open = true;
-      }
-    }
-    return is_once_open;
   }
 });
