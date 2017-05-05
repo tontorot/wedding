@@ -38,3 +38,19 @@ function canvas_init()
   canvas.style.top = canvas_top + "px";
   canvas.style.left = canvas_left + "px";
 }
+
+
+var loaded_image_list = {};
+/**
+ * @param target_container 画像を載せるコンテナ
+ * @param image_name 読み込む画像名
+ * @param image_x 画像を配置する座標（画像の左上の座標を参照
+ */
+function addImage(target_container,image_name,image_x,image_y)
+{
+  //画像の左上の座標がimagex,image_yになる
+  var added_image = new createjs.Bitmap(loaded_image_list[image_name]);
+  added_image.setTransform(image_x*resize_ratio,image_y*resize_ratio,resize_ratio,resize_ratio);
+  target_container.addChild(added_image);
+  return added_image;
+}

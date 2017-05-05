@@ -2,8 +2,6 @@ $(function () {
 
   var container = null;
 
-  var loaded_image_list = {};
-
   //チュートリアルステップを管理する用
   var tutorial_step = 1;
   var OP_STEP_1 = 1;//開始時。ゲーム導入
@@ -89,21 +87,6 @@ $(function () {
     // Stageの描画を更新します
     stage.update();
   }
-  
-  /**
-   * @param target_container 画像を載せるコンテナ
-   * @param image_name 読み込む画像名
-   * @param image_x 画像を配置する座標（画像の左上の座標を参照
-   */
-  function addImage(target_container,image_name,image_x,image_y,optional_resize_ratio=1)
-  {
-    //画像の左上の座標がimagex,image_yになる
-    var added_image = new createjs.Bitmap(loaded_image_list[image_name]);
-
-    added_image.setTransform(image_x*resize_ratio,image_y*resize_ratio,resize_ratio*optional_resize_ratio,resize_ratio*optional_resize_ratio);
-    target_container.addChild(added_image);
-    return added_image;
-  }
 
   function onDown(e) {
     atClicked(e.clientX, e.clientY);
@@ -143,7 +126,7 @@ $(function () {
         break;
       case OP_STEP_6:
         //リンクを貼る
-        window.location.href = '../createjs.html';
+        window.location.href = '../title/title.php';
         break;
       default:
         break;
