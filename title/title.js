@@ -63,10 +63,14 @@ $(function () {
 
     //チュートリアルへ飛ぶボタンを設置
     addButtonImage(container, TO_TUTORIAL, toTutorial, 160, 320);
-    //本編へ飛ぶボタンを設置
-    addButtonImage(container, TO_GAME, toGame, 160, 400);
-    //ランキングへ飛ぶボタンを設置
-    addButtonImage(container, TO_RANKING, toRanking, 160, 480);
+
+    if(parseInt(json_user_info.is_tutorial_clear))
+    {
+      //本編へ飛ぶボタンを設置
+      addButtonImage(container, TO_GAME, toGame, 160, 400);
+      //ランキングへ飛ぶボタンを設置
+      addButtonImage(container, TO_RANKING, toRanking, 160, 480);
+    }
 
     createjs.Touch.enable(stage);
     // Stageの描画を更新します
