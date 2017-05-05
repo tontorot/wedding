@@ -66,4 +66,9 @@ function is_viewer_id_exists($viewer_id)
 		print("return false<br>");
 	return FALSE;
 }
+
+function test()
+{
+	eval("console.log('test')");
+}
 ?>

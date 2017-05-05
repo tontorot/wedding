@@ -96,18 +96,18 @@ $(function () {
   function toTutorial()
   {
     console.log("to_tutorial");
-    window.location.href = './tutorial.html';
+    window.location.href = '../tutorial/tutorial.php';
   }
   //チュートリアルページへ飛ぶ処理
   function toGame()
   {
     console.log("to_game");
-    window.location.href = './createjs.html';
+    window.location.href = '../game/game.php';
   }
   //チュートリアルページへ飛ぶ処理
   function toRanking()
   {
-    console.log("to_game");
-    window.location.href = './createjs.html';
+    console.log("to_ranking");
+    window.location.href = '../ranking/ranking.php';
   }
 });
