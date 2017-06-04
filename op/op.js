@@ -26,7 +26,7 @@ $(function () {
   var OP4 = "op4";
   var OP5 = "op5";
   var OP6 = "op6";
-  var IMAGE_DIR = "../images/";
+  var IMAGE_DIR = "/wedding/images/";
   // 読み込むファイルの登録。
   var manifest = [
       {"src":IMAGE_DIR+OP1+".jpg","id":OP1},
@@ -126,7 +126,7 @@ $(function () {
         break;
       case OP_STEP_6:
         //リンクを貼る
-        window.location.href = '../title/title.php';
+        window.location.href = '/wedding/index.php?page=title';
         break;
       default:
         break;

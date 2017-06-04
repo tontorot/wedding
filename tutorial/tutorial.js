@@ -51,7 +51,7 @@ $(function () {
   var BALOON_4 = "baloon4";
   var CAT_DISCRIPTION = "cat_discription";
   var COMPLETE_IMAGE = "complete";
-  var IMAGE_DIR = "../images/";
+  var IMAGE_DIR = "/wedding/images/";
   // 読み込むファイルの登録。
   var manifest = [
       {"src":IMAGE_DIR+BACKGROUND_IMAGE+".jpg","id":BACKGROUND_IMAGE},
@@ -189,7 +189,7 @@ $(function () {
         tutorial_step = TUTORIAL_STEP_6;
         // Ajax通信を開始する
         $.ajax({
-            url: '../common/db.php',
+            url: '/wedding/common/db.php',
             type: 'post', // getかpostを指定(デフォルトは前者)
             dataType: 'text', // 「json」を指定するとresponseがJSONとしてパースされたオブジェクトになる
             data: { // 送信データを指定(getの場合は自動的にurlの後ろにクエリとして付加される)
@@ -210,7 +210,7 @@ $(function () {
         });
         break;
       case TUTORIAL_STEP_6:
-        window.location.href = '../title/title.php';
+        window.location.href = '/wedding/index.php?page=title';
         break;
       default:
         break;

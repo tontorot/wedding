@@ -9,7 +9,7 @@ $(function () {
   var TO_TUTORIAL = "to_tutorial";
   var TO_GAME = "to_game";
   var TO_RANKING = "to_ranking";
-  var IMAGE_DIR = "../images/";
+  var IMAGE_DIR = "/wedding/images/";
   // 読み込むファイルの登録。
   var manifest = [
       {"src":IMAGE_DIR+BACKGROUND_IMAGE+".jpg","id":BACKGROUND_IMAGE},
@@ -63,7 +63,7 @@ $(function () {
 
     //チュートリアルへ飛ぶボタンを設置
     addButtonImage(container, TO_TUTORIAL, toTutorial, 160, 320);
-
+console.log(json_user_info);
     if(parseInt(json_user_info.is_tutorial_clear))
     {
       //本編へ飛ぶボタンを設置
@@ -96,18 +96,18 @@ $(function () {
   function toTutorial()
   {
     console.log("to_tutorial");
-    window.location.href = '../tutorial/tutorial.php';
+    window.location.href = '/wedding/index.php?page=tutorial';
   }
   //チュートリアルページへ飛ぶ処理
   function toGame()
   {
     console.log("to_game");
-    window.location.href = '../game/game.php';
+    window.location.href = '/wedding/index.php?page=game';
   }
   //チュートリアルページへ飛ぶ処理
   function toRanking()
   {
     console.log("to_ranking");
-    window.location.href = '../ranking/ranking.php';
+    window.location.href = '/wedding/index.php?page=ranking';
   }
 });
