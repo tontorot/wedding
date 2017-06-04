@@ -4,6 +4,19 @@ try
 	$user = 'root';
 	$pass = '';
 	$dbh = new PDO('mysql:host=localhost;', $user, $pass);
+
+	switch ($_REQUEST['method'])
+	{
+		case 'update_tutorial_clear':
+			$viewer_id = $_REQUEST['viewer_id'];
+			$result = update_tutorial_clear($viewer_id);
+			echo $result;
+			break;
+		
+		default:
+			# code...
+			break;
+	}
 }
 catch(PDOException $e)
 {
@@ -67,8 +80,12 @@ function is_viewer_id_exists($viewer_id)
 	return FALSE;
 }
 
-function test()
+function update_tutorial_clear($viewer_id)
 {
-	eval("console.log('test')");
+	global $dbh;
+	$sql = "UPDATE wedding.user_info set is_tutorial_clear = 1 where viewer_id = ?";
+	$stmt = $dbh->prepare($sql);
+	$stmt->execute(array($viewer_id));
+	return $stmt->rowCount();
 }
 ?>

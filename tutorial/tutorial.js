@@ -187,19 +187,30 @@ $(function () {
       case TUTORIAL_STEP_5:
         //リンクを貼る
         tutorial_step = TUTORIAL_STEP_6;
+        // Ajax通信を開始する
         $.ajax({
-            dataType: "json",
-            data: "",
-            // TODO叩けてない
-            url: "../common/db.php?method=test",
-            success: function(data) {
-                // $.each(data, function(i,item){
-                //     $("#result").append(item);
-                // });
-                console.log("success");
+            url: '../common/db.php',
+            type: 'post', // getかpostを指定(デフォルトは前者)
+            dataType: 'text', // 「json」を指定するとresponseがJSONとしてパースされたオブジェクトになる
+            data: { // 送信データを指定(getの場合は自動的にurlの後ろにクエリとして付加される)
+                method: "update_tutorial_clear",
+                viewer_id: json_user_info["viewer_id"]
             }
-         });
-        // window.location.href = './createjs.html';
+        })
+        // ・ステータスコードは正常で、dataTypeで定義したようにパース出来たとき
+        .done(function (response) {
+            console.log(response);
+            console.log("ajax success");
+        })
+        // ・サーバからステータスコード400以上が返ってきたとき
+        // ・ステータスコードは正常だが、dataTypeで定義したようにパース出来なかったとき
+        // ・通信に失敗したとき
+        .fail(function () {
+            console.log("ajax failed");
+        });
+        break;
+      case TUTORIAL_STEP_6:
+        window.location.href = '../title/title.php';
         break;
       default:
         break;
