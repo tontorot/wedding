@@ -45,7 +45,7 @@ $(function () {
   var CAT_IMAGE = "normal_uyu_mini";
   var SILHOUETTE_IMAGE = "normal_uyu_mini_silhouette";
   var DARK_EFFECT = "dark_effect";
-  var BALOON_1 = "baloon";
+  var BALOON_1 = "tutorial1";
   var BALOON_2 = "baloon2";
   var BALOON_3 = "baloon3";
   var BALOON_4 = "baloon4";
