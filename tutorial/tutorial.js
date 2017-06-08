@@ -137,9 +137,11 @@ $(function () {
   var total_diff_x = 0;
   var total_diff_y = 0;
   function onDown(e) {
+    showRipple(e.clientX-canvas_left_offset,e.clientY-canvas_top_offset);
     atClicked( (e.clientX-canvas_left_offset) / resize_ratio, (e.clientY-canvas_top_offset) / resize_ratio);
   }
   function onTouch(e) {
+    showRipple(e.touches[0].clientX-canvas_left_offset,e.touches[0].clientY-canvas_top_offset);
     atClicked( (e.touches[0].clientX-canvas_left_offset) / resize_ratio, (e.touches[0].clientY-canvas_top_offset) / resize_ratio);
   }
   function atClicked(click_x,click_y)
@@ -257,5 +259,28 @@ $(function () {
       }
     }
     return is_once_open;
+  }
+
+  function showRipple(x,y)
+  {
+    console.log("showRipple");
+
+    //しずくになるdivの生成、座標の設定
+    var ripple = document.createElement("div");
+    var canvas_top = parseInt(canvas.style.top);
+    var canvas_left = parseInt(canvas.style.left);
+    ripple.style.top = (y + canvas_top) + "px";
+    ripple.style.left = (x + canvas_left) +"px";
+
+
+    //アニメーションをする className を付ける
+    ripple.className = "ripple";
+
+    //アニメーションが終わった事を感知してしずくを remove する
+    ripple.addEventListener("animationend", function() {
+        this.parentNode.removeChild(this);
+    }, false);
+    
+    document.body.appendChild(ripple);
   }
 });

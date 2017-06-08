@@ -1,0 +1,23 @@
+.ripple {
+    animation: ripple 2s linear 0s; /*1s はアニメーションにかかる時間*/
+    background-color: #6EB2E0; /*背景色*/
+    border-radius: 50%;
+    border: 4px solid #6EB2E0; /*ボーダーの幅と色*/
+    position: absolute;
+    z-index: 1000;
+}
+
+@keyframes ripple {
+    0% {
+        height: 0; 
+        opacity: 1;
+        transform: translate(0, 0);
+        width: 0;
+    }
+    100% {
+        height: 100px; /*円の高さ幅の最大値*/
+        opacity: 0;
+        transform: translate(-50px, -50px); /*高さの半分の値にする*/
+        width: 100px; /*基本高さと合わせる*/
+    }
+}

@@ -14,6 +14,7 @@ $_output = <<<HTML
     }
     </style>
     <script>var json_user_info = {$json_user_info};</script>
+    <link rel="stylesheet" href="/wedding/common/ripple.css">
     <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script type="text/javascript" src="/wedding/common/common.js"></script>
