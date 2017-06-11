@@ -54,3 +54,39 @@ function addImage(target_container,image_name,image_x,image_y,optional_resize_ra
   target_container.addChild(added_image);
   return added_image;
 }
+
+var prev_ripple_x = 0;
+var prev_ripple_y = 0;
+
+//タッチ演出を作る
+function showTouchEffect(x,y)
+{
+  // 肉球画像をロード
+  var bitmap = new createjs.Bitmap('/wedding/images/nikukyu.png');
+
+  // 座標設定
+  bitmap.x = x;
+  bitmap.y = y;
+
+  // 基準点設定
+  bitmap.regX = 200;
+  bitmap.regY = 200;
+
+  // サイズ設定
+  bitmap.scaleX = 0.4 * resize_ratio;
+  bitmap.scaleY = 0.4 * resize_ratio;
+
+  // 前回タップした場所から足跡が延びるように回転
+  var diff_x = prev_ripple_x - x;
+  var diff_y = prev_ripple_y - y;
+  var theta = Math.atan2(diff_y,diff_x);
+  bitmap.rotation = theta * 180 / Math.PI - 90;
+
+  // 今回タップした場所を保存
+  prev_ripple_x = x;
+  prev_ripple_y = y;
+
+  createjs.Tween.get(bitmap).to({alpha: 0}, 5000);
+  // stageにBitmapオブジェクトを配置
+  stage.addChild(bitmap);
+}
