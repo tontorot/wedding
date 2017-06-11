@@ -55,6 +55,8 @@ $(function () {
   var BACKGROUND_IMAGE_1F = "game_1F";
   var BACKGROUND_IMAGE_2F = "game_2F";
   var COMPLETE_IMAGE = "complete";
+  var ARROW_TOP_IMAGE = "top_arrow";
+  var ARROW_BOTTOM_IMAGE = "bottom_arrow";
   var IMAGE_DIR = "/wedding/images/";
   // 読み込むファイルの登録。
   var manifest = [
@@ -67,6 +69,8 @@ $(function () {
       {"src":IMAGE_DIR+"2_4.png","id":"2_4"},
       {"src":IMAGE_DIR+"3_4.png","id":"3_4"},
       {"src":IMAGE_DIR+"3_4.png","id":"4_4"},
+      {"src":IMAGE_DIR+ARROW_TOP_IMAGE+".png","id":ARROW_TOP_IMAGE},
+      {"src":IMAGE_DIR+ARROW_BOTTOM_IMAGE+".png","id":ARROW_BOTTOM_IMAGE},
   ];
   for(var index in hidden_cat_data)
   {
@@ -143,29 +147,103 @@ console.log("background_image_width = "+background_image_width);
     // 2F画像を表示すると、1F画像が下に表示されたままになってしまう。これを隠すために、コンテナ2に白い画像を置いておく。
     addImage(container2, BACKGROUND_IMAGE_0F, 0,  loaded_image_list[BACKGROUND_IMAGE_1F].height);
 
+    var arrow_top_image = addImage(container, ARROW_TOP_IMAGE, 1900, 180, 0.4);
+    arrow_top_image.addEventListener('mousedown',arrow_top,false);
+    arrow_top_image.addEventListener('touchstart',arrow_top,false);
+    var arrow_bottom_image = addImage(container, ARROW_BOTTOM_IMAGE, 2000, -200, 0.4);
+    arrow_bottom_image.addEventListener('mousedown',arrow_bottom,false);
+    arrow_bottom_image.addEventListener('touchstart',arrow_bottom,false);
+
     // html側で定義しているcanvasのサイズ
     canvas_scaled_width = 1334 * resize_ratio;
 
     progress_image　= addImage(container2, "0_4", 0, 0, 0.2);
     createjs.Touch.enable(stage);
 
-    drawCatsRect();
+    initCats();
     // Stageの描画を更新します
     stage.update();
   }
-  /**
-   * @param target_container 画像を載せるコンテナ
-   * @param image_name 読み込む画像名
-   * @param image_x 画像を配置する座標（画像の左上の座標を参照
-   */
-  // function addImage(target_container,image_name,image_x,image_y,optional_resize_ratio=1)
-  // {
-  //   //画像の左上の座標がimagex,image_yになる
-  //   var added_image = new createjs.Bitmap(loaded_image_list[image_name]);
-  //   added_image.setTransform(image_x*resize_ratio,image_y*resize_ratio,resize_ratio*optional_resize_ratio,resize_ratio*optional_resize_ratio);
-  //   target_container.addChild(added_image);
-  //   return added_image;
-  // }
+  function arrow_top(event)
+  {
+    console.log("arrow_top");
+    createjs.Tween.get(container).to({y:background_image_height}, 1000);
+    total_diff_y = background_image_height;
+    now_floor = 2;
+    stage.update();
+  }
+  function arrow_bottom(event)
+  {
+    console.log("arrow_bottom");
+    createjs.Tween.get(container).to({y:0}, 1000);
+    total_diff_y = 0;
+    now_floor = 1;
+    stage.update();
+  }
+
+  function initCats()
+  {
+    for(var index in hidden_cat_data)
+    {
+      var hidden_cat = hidden_cat_data[index];
+      hidden_cat_data[index]["image_buff"] = addImage(container,hidden_cat["open_image"],hidden_cat["x"],hidden_cat["y"]);
+      hidden_cat_data[index]["image_buff"].alpha = 0.5;
+      hidden_cat_data[index]["image_buff"].addEventListener('mousedown',catsClicked(index),false);
+      hidden_cat_data[index]["image_buff"].addEventListener('touchstart',catsClicked(index),false);
+    }
+  }
+
+  function catsClicked(index)
+  {
+    return function(event)
+    {
+      if(is_touch_forbidden)
+      {
+        return;
+      }
+      console.log("catsClicked at "+index);
+      hidden_cat_data[index]["image_buff"].alpha = 1;
+      // この猫は見つけられたというフラグを立てる
+      hidden_cat_data[index]["is_open"] = true;
+
+      changeProgressImage();
+
+      // 今回のタップにおいては、二匹目以降の発見チェックをしないというフラグを立てる
+      is_once_open = true;
+
+      // 1秒後に説明を表示する猫番号を一時変数に格納
+      keeped_cat_index = index;
+      // 1秒後に猫説明を表示
+      var hoge = setInterval(function() {
+        // 見つかった猫は消して
+        // container.removeChild(get_cat);
+        // 猫の説明を表示する
+        cat_discription_image = addImage(container2, hidden_cat_data[index]["discription_image"], 0, 0);
+        cat_discription_image.addEventListener('mousedown',deleteCatDiscription,false);
+        cat_discription_image.addEventListener('touchstart',deleteCatDiscription,false);
+        clearInterval(hoge);
+      }, 1000);
+    }
+  }
+
+  function deleteCatDiscription()
+  {
+    container2.removeChild(cat_discription_image);
+  }
+
+  function changeProgressImage()
+  {
+    container2.removeChild(progress_image);
+    var found_cat_count = 0;
+    for(var index2 in hidden_cat_data)
+    {
+      if(hidden_cat_data[index2]["is_open"])
+      {
+        found_cat_count ++;
+      }
+    }
+    progress_image　= addImage(container2, found_cat_count+"_4", 0, 0, 0.2);
+  }
 
   var in_drag = false;
   var before_x_for_move_container;
@@ -191,7 +269,7 @@ console.log("background_image_width = "+background_image_width);
     var calc_right = e.clientX - canvas.offsetLeft; 
     if(before_x_for_click == calc_right)
     {
-      openCheck(touched_x, touched_y);
+      // openCheck(touched_x, touched_y);
       change_floor(touched_x, touched_y);
     }
   }
@@ -205,7 +283,7 @@ console.log("background_image_width = "+background_image_width);
     var calc_right = e.touches[0].clientX - canvas.offsetLeft;
     if(before_x_for_click == calc_right)
     {
-      openCheck(touched_x, touched_y);
+      // openCheck(touched_x, touched_y);
       change_floor(touched_x, touched_y);
     }
   }
@@ -249,20 +327,6 @@ console.log("background_image_width = "+background_image_width);
     var y = e.clientY - canvas.offsetTop;
   }
 
-  //隠れている猫達の場所を表示
-  function drawCatsRect()
-  {
-    for(var index in hidden_cat_data)
-    {
-      var hidden_cat = hidden_cat_data[index];
-
-      console.log(hidden_cat);
-      var shape = new createjs.Shape();
-      shape.graphics.beginStroke("#0055bb");
-      shape.graphics.drawRect(hidden_cat["x"]*resize_ratio, hidden_cat["y"]*resize_ratio, hidden_cat["image_width"]*resize_ratio, hidden_cat["image_height"]*resize_ratio); // 長方形を描画
-      container.addChild(shape); // 表示リストに追加
-    }
-  }
   var is_change_floor_forbidden = false;
   function change_floor(x,y)
   {
