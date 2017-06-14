@@ -57,6 +57,8 @@ $(function () {
   var COMPLETE_IMAGE = "complete";
   var ARROW_TOP_IMAGE = "top_arrow";
   var ARROW_BOTTOM_IMAGE = "bottom_arrow";
+  var JEWEL_GET = "jewel_get";
+  var JEWEL_FAIL = "jewel_fail";
   var IMAGE_DIR = "/wedding/images/";
   // 読み込むファイルの登録。
   var manifest = [
@@ -71,6 +73,8 @@ $(function () {
       {"src":IMAGE_DIR+"3_4.png","id":"4_4"},
       {"src":IMAGE_DIR+ARROW_TOP_IMAGE+".png","id":ARROW_TOP_IMAGE},
       {"src":IMAGE_DIR+ARROW_BOTTOM_IMAGE+".png","id":ARROW_BOTTOM_IMAGE},
+      {"src":IMAGE_DIR+JEWEL_GET+".png","id":JEWEL_GET},
+      {"src":IMAGE_DIR+JEWEL_FAIL+".png","id":JEWEL_FAIL},
   ];
   for(var index in hidden_cat_data)
   {
@@ -229,6 +233,47 @@ console.log("background_image_width = "+background_image_width);
   function deleteCatDiscription()
   {
     container2.removeChild(cat_discription_image);
+    if(is_complete())
+    {
+      console.log("game end");
+      addFinishImage();
+    }
+  }
+
+  function addFinishImage()
+  {
+    // Ajax通信を開始する
+    $.ajax({
+        url: '/wedding/common/db.php',
+        type: 'post', // getかpostを指定(デフォルトは前者)
+        dataType: 'text', // 「json」を指定するとresponseがJSONとしてパースされたオブジェクトになる
+        data: { // 送信データを指定(getの場合は自動的にurlの後ろにクエリとして付加される)
+            method: "finish",
+            viewer_id: json_user_info["viewer_id"]
+        }
+    })
+    // ・ステータスコードは正常で、dataTypeで定義したようにパース出来たとき
+    .done(function (response) {
+        console.log(response);
+        console.log("ajax success");
+        var clear_num = parseInt(response);
+        if(clear_num <= 50)
+        {
+console.log("jewel_get : clear_num = "+clear_num);
+          addImage(container2, JEWEL_GET, 0,  0);
+        }
+        else
+        {
+console.log("jewel_fail : clear_num = "+clear_num);
+          addImage(container2, JEWEL_FAIL, 0,  0);
+        }
+    })
+    // ・サーバからステータスコード400以上が返ってきたとき
+    // ・ステータスコードは正常だが、dataTypeで定義したようにパース出来なかったとき
+    // ・通信に失敗したとき
+    .fail(function () {
+        console.log("ajax failed");
+    });
   }
 
   function changeProgressImage()

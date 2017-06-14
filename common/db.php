@@ -12,7 +12,11 @@ try
 			$result = update_tutorial_clear($viewer_id);
 			echo $result;
 			break;
-		
+		case 'finish':
+			$viewer_id = $_REQUEST['viewer_id'];
+			$result = insert_finish_time($viewer_id);
+			echo $result;
+			break;
 		default:
 			# code...
 			break;
@@ -87,5 +91,15 @@ function update_tutorial_clear($viewer_id)
 	$stmt = $dbh->prepare($sql);
 	$stmt->execute(array($viewer_id));
 	return $stmt->rowCount();
+}
+
+function insert_finish_time($viewer_id)
+{
+	global $dbh;
+	$sql = "INSERT INTO wedding.game_finish_time (viewer_id, finish_time) VALUES (?, ?)";
+	$stmt = $dbh->prepare($sql);
+	$stmt->execute(array($viewer_id,date('Y-m-d H:i:s')));
+	$id = $dbh->lastInsertId();
+	return $id;
 }
 ?>
