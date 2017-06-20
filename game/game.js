@@ -71,7 +71,7 @@ $(function () {
       {"src":IMAGE_DIR+"1_4.png","id":"1_4"},
       {"src":IMAGE_DIR+"2_4.png","id":"2_4"},
       {"src":IMAGE_DIR+"3_4.png","id":"3_4"},
-      {"src":IMAGE_DIR+"3_4.png","id":"4_4"},
+      {"src":IMAGE_DIR+"4_4.png","id":"4_4"},
       {"src":IMAGE_DIR+ARROW_TOP_IMAGE+".png","id":ARROW_TOP_IMAGE},
       {"src":IMAGE_DIR+ARROW_BOTTOM_IMAGE+".png","id":ARROW_BOTTOM_IMAGE},
       {"src":IMAGE_DIR+ARROW_RIGHT_IMAGE+".png","id":ARROW_RIGHT_IMAGE},
@@ -214,15 +214,14 @@ console.log("background_image_width = "+background_image_width);
       {
         return;
       }
+      // 猫の説明を表示している間、他の猫をタッチできなくする
+      is_touch_forbidden = true;
       console.log("catsClicked at "+index);
       hidden_cat_data[index]["image_buff"].alpha = 1;
       // この猫は見つけられたというフラグを立てる
       hidden_cat_data[index]["is_open"] = true;
 
       changeProgressImage();
-
-      // 今回のタップにおいては、二匹目以降の発見チェックをしないというフラグを立てる
-      is_once_open = true;
 
       // 1秒後に説明を表示する猫番号を一時変数に格納
       keeped_cat_index = index;
@@ -242,6 +241,8 @@ console.log("background_image_width = "+background_image_width);
   function deleteCatDiscription()
   {
     container2.removeChild(cat_discription_image);
+    //猫の説明を消して、再度猫をタッチできるように
+    is_touch_forbidden = false;
     if(is_complete())
     {
       console.log("game end");
