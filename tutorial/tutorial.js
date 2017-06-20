@@ -144,7 +144,7 @@ $(function () {
   }
   function atClicked(click_x,click_y)
   {
-    showTouchEffect(click_x * resize_ratio, click_y * resize_ratio);
+    showTouchEffect(container,click_x * resize_ratio, click_y * resize_ratio);
     in_drag = true;
     before_x = click_x - canvas.offsetLeft;
 

@@ -3,9 +3,6 @@
 $(function () {
   var canvas = document.getElementById("canvas");
 
-  // Stageオブジェクトを作成します
-  var stage = new createjs.Stage("canvas");
-
   var cat_list_resize_ratio = 0.3;
   var container = null;
   var container2 = null;
@@ -29,10 +26,10 @@ $(function () {
    * @param discription_image 見つかる猫説明をする画像名。拡張子抜き。
    */
   var hidden_cat_data ={
-       "uyu_jiji":{"x":0,  "y":100, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_jiji",  "discription_image":"cat_discription"}
-      ,"uyu_bus" :{"x":200,"y":-480,   "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_bus","discription_image":"cat_discription"}
-      ,"chibi"   :{"x":320,"y":240, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"chibi",     "discription_image":"cat_discription"}
-      ,"milk"    :{"x":400,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"milk",      "discription_image":"cat_discription"}
+       "uyu_jiji":{"x":0,  "y":100, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_jiji",  "discription_image":"uyu_jiji_discription"}
+      ,"uyu_bus" :{"x":200,"y":-480,   "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_bus","discription_image":"milk_discription"}
+      ,"chibi"   :{"x":320,"y":240, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"chibi",     "discription_image":"chibi_discription"}
+      ,"milk"    :{"x":400,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"milk",      "discription_image":"taichi_discription"}
     };
   // 今何階にいるか。初期値1階。
   var now_floor = 1;
@@ -42,6 +39,8 @@ $(function () {
 
   var cat_discription_image = null;
   var progress_image = null;
+  var arrow_left_image = null;
+  var arrow_right_image = null;
   var hit_offset_x = 20;
   var hit_offset_y = 20;
 
@@ -57,6 +56,8 @@ $(function () {
   var COMPLETE_IMAGE = "complete";
   var ARROW_TOP_IMAGE = "top_arrow";
   var ARROW_BOTTOM_IMAGE = "bottom_arrow";
+  var ARROW_RIGHT_IMAGE = "right_arrow";
+  var ARROW_LEFT_IMAGE = "left_arrow";
   var JEWEL_GET = "jewel_get";
   var JEWEL_FAIL = "jewel_fail";
   var IMAGE_DIR = "/wedding/images/";
@@ -73,6 +74,8 @@ $(function () {
       {"src":IMAGE_DIR+"3_4.png","id":"4_4"},
       {"src":IMAGE_DIR+ARROW_TOP_IMAGE+".png","id":ARROW_TOP_IMAGE},
       {"src":IMAGE_DIR+ARROW_BOTTOM_IMAGE+".png","id":ARROW_BOTTOM_IMAGE},
+      {"src":IMAGE_DIR+ARROW_RIGHT_IMAGE+".png","id":ARROW_RIGHT_IMAGE},
+      {"src":IMAGE_DIR+ARROW_LEFT_IMAGE+".png","id":ARROW_LEFT_IMAGE},
       {"src":IMAGE_DIR+JEWEL_GET+".png","id":JEWEL_GET},
       {"src":IMAGE_DIR+JEWEL_FAIL+".png","id":JEWEL_FAIL},
   ];
@@ -81,7 +84,7 @@ $(function () {
     var open_image_name = hidden_cat_data[index]["open_image"];
     var discription_image_name = hidden_cat_data[index]["discription_image"];
     manifest.push({"src":IMAGE_DIR+open_image_name+".png","id":open_image_name});
-    manifest.push({"src":IMAGE_DIR+discription_image_name+".jpg","id":discription_image_name});
+    manifest.push({"src":IMAGE_DIR+discription_image_name+".png","id":discription_image_name});
   }
 
   // manifestの読込
@@ -157,6 +160,12 @@ console.log("background_image_width = "+background_image_width);
     var arrow_bottom_image = addImage(container, ARROW_BOTTOM_IMAGE, 2000, -200, 0.4);
     arrow_bottom_image.addEventListener('mousedown',arrow_bottom,false);
     arrow_bottom_image.addEventListener('touchstart',arrow_bottom,false);
+
+    //左にスワイプできるか、右にスワイプできるかどうかの画像を表示する
+    arrow_right_image = addImage(container2, ARROW_RIGHT_IMAGE, 0, 0);
+    arrow_left_image = addImage(container2, ARROW_LEFT_IMAGE, 0, 0);
+    // 最初は画面左端にいるので、左向きの矢印は非表示にしておく
+    arrow_left_image.alpha = 0;
 
     // html側で定義しているcanvasのサイズ
     canvas_scaled_width = 1334 * resize_ratio;
@@ -298,11 +307,15 @@ console.log("jewel_fail : clear_num = "+clear_num);
     in_drag = true;
     before_x_for_move_container = e.clientX - canvas.offsetLeft;
     before_x_for_click = before_x_for_move_container;
+
+    showTouchEffect(container, e.clientX-canvas_left_offset-total_diff_x, e.clientY-canvas_top_offset-total_diff_y);
   }
   function touchStart(e) {
     in_drag = true;
     before_x_for_move_container = e.touches[0].clientX - canvas.offsetLeft;
     before_x_for_click = before_x_for_move_container;
+
+    showTouchEffect(container, e.touches[0].clientX-canvas_left_offset-total_diff_x, e.touches[0].clientY-canvas_top_offset-total_diff_y);
   }
   function onUp(e) {
     in_drag = false;
@@ -347,15 +360,25 @@ console.log("jewel_fail : clear_num = "+clear_num);
       total_diff_x += diff_x;
       before_x_for_move_container = after_x;
       var min_total_diff_x = canvas_scaled_width - background_image_width;
-      //背景画像が一番左にいたら、それ以上右に引っ張れなくする
+      //左端にいるので、これ以上左にいけなくする
       if(total_diff_x > 0)
       {
         total_diff_x = 0;
+        arrow_left_image.alpha = 0;
       }
-      //背景画像が一番右にいたら、それ以上左に引っ張れなくする
-      else if(total_diff_x < min_total_diff_x)
+      else
+      {
+        arrow_left_image.alpha = 1;
+      }
+      //右端にいるので、これ以上右に行けなくする
+      if(total_diff_x < min_total_diff_x)
       {
         total_diff_x = canvas_scaled_width - background_image_width;
+        arrow_right_image.alpha = 0;
+      }
+      else
+      {
+        arrow_right_image.alpha = 1;
       }
 
       $("#textbox").text(total_diff_x);

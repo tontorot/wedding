@@ -59,8 +59,8 @@ var prev_ripple_x = 0;
 var prev_ripple_y = 0;
 
 //タッチ演出を作る
-function showTouchEffect(x,y)
-{
+function showTouchEffect(target_container,x,y)
+{console.log("showTouchEffect x:"+x+", y:"+y);
   // 肉球画像をロード
   var bitmap = new createjs.Bitmap('/wedding/images/nikukyu.png');
 
@@ -88,5 +88,5 @@ function showTouchEffect(x,y)
 
   createjs.Tween.get(bitmap).to({alpha: 0}, 5000);
   // stageにBitmapオブジェクトを配置
-  stage.addChild(bitmap);
+  target_container.addChild(bitmap);
 }
