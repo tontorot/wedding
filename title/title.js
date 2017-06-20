@@ -1,5 +1,6 @@
 $(function () {
   var container = null;
+  var container2 = null;
 
   // LoadQueueのインスタンス作成
   // 引数にfalseを指定するとXHRを使わずtagによる読み込みを行います
@@ -41,8 +42,6 @@ $(function () {
 
   // ファイルがすべて読込完了すると呼ばれる
   function handleComplete(event){
-    // completeハンドラに渡される引数が持っているgetResult()にidを指定してファイルオブジェクトを取得する
-    // var file = event.getResult(id); manifestで指定したid
     canvas_init();
     init();
   }
@@ -56,14 +55,17 @@ $(function () {
     });
 
     container = new createjs.Container();
-    // container2 = new createjs.Container();
+    container2 = new createjs.Container();
     stage.addChild(container);
-    // stage.addChild(container2);
+    stage.addChild(container2);
     addImage(container, BACKGROUND_IMAGE, 0, 0);
+
+    canvas.addEventListener('mousedown', onDown, false);
+    canvas.addEventListener('touchstart', onTouch, false);
 
     //チュートリアルへ飛ぶボタンを設置
     addButtonImage(container, TO_TUTORIAL, toTutorial, 160, 320);
-console.log(json_user_info);
+
     if(parseInt(json_user_info.is_tutorial_clear))
     {
       //本編へ飛ぶボタンを設置
@@ -75,6 +77,17 @@ console.log(json_user_info);
     createjs.Touch.enable(stage);
     // Stageの描画を更新します
     stage.update();
+  }
+
+  function onDown(e) {
+    atClicked( (e.clientX-canvas_left_offset) / resize_ratio, (e.clientY-canvas_top_offset) / resize_ratio);
+  }
+  function onTouch(e) {
+    atClicked( (e.touches[0].clientX-canvas_left_offset) / resize_ratio, (e.touches[0].clientY-canvas_top_offset) / resize_ratio);
+  }
+  function atClicked(click_x,click_y)
+  {
+    showTouchEffect(container2,click_x * resize_ratio, click_y * resize_ratio);
   }
 
   /**

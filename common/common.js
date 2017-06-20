@@ -73,8 +73,8 @@ function showTouchEffect(target_container,x,y)
   bitmap.regY = 200;
 
   // サイズ設定
-  bitmap.scaleX = 0.4 * resize_ratio;
-  bitmap.scaleY = 0.4 * resize_ratio;
+  bitmap.scaleX = 0.2 * resize_ratio;
+  bitmap.scaleY = 0.2 * resize_ratio;
 
   // 前回タップした場所から足跡が延びるように回転
   var diff_x = prev_ripple_x - x;
@@ -86,7 +86,7 @@ function showTouchEffect(target_container,x,y)
   prev_ripple_x = x;
   prev_ripple_y = y;
 
-  createjs.Tween.get(bitmap).to({alpha: 0}, 5000);
+  createjs.Tween.get(bitmap).to({alpha: 0}, 2000);
   // stageにBitmapオブジェクトを配置
   target_container.addChild(bitmap);
 }
