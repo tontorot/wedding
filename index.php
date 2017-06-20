@@ -12,9 +12,9 @@ switch ($page) {
 	case 'tutorial':
 		require('./tutorial/tutorial.php');
 		break;
-	// case 'title':
-	// 	require('./title/title.php');
-	// 	break;
+	case 'game':
+		require('./game/game.php');
+		break;
 	// case 'title':
 	// 	require('./title/title.php');
 	// 	break;
