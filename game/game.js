@@ -26,10 +26,12 @@ $(function () {
    * @param discription_image 見つかる猫説明をする画像名。拡張子抜き。
    */
   var hidden_cat_data ={
-       "uyu_jiji":{"x":0,  "y":100, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_jiji",  "discription_image":"uyu_jiji_discription"}
-      ,"uyu_bus" :{"x":200,"y":-480,   "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"uyu_bus","discription_image":"milk_discription"}
-      ,"chibi"   :{"x":320,"y":240, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"chibi",     "discription_image":"chibi_discription"}
-      ,"milk"    :{"x":400,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "image_buff":null, "open_image":"milk",      "discription_image":"taichi_discription"}
+       "uyu_jiji":{"x":0,  "y":100, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"uyu_jiji",  "discription_image":"uyu_jiji_discription"}
+      // ,"uyu_bus" :{"x":200,"y":-480,"image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"uyu_bus","discription_image":"milk_discription"}
+      ,"chibi"   :{"x":320,"y":240, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"chibi",     "discription_image":"chibi_discription"}
+      ,"milk"    :{"x":400,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"milk",      "discription_image":"taichi_discription"}
+      ,"hazure1" :{"x":600,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure1",      "discription_image":"hazure1_discription"}
+      ,"hazure2" :{"x":600,"y":50,  "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure2",      "discription_image":"hazure2_discription"}
     };
   // 今何階にいるか。初期値1階。
   var now_floor = 1;
@@ -292,7 +294,7 @@ console.log("jewel_fail : clear_num = "+clear_num);
     var found_cat_count = 0;
     for(var index2 in hidden_cat_data)
     {
-      if(hidden_cat_data[index2]["is_open"])
+      if(hidden_cat_data[index2]["is_open"] && hidden_cat_data[index2]["is_cat"])
       {
         found_cat_count ++;
       }
@@ -310,6 +312,7 @@ console.log("jewel_fail : clear_num = "+clear_num);
     before_x_for_click = before_x_for_move_container;
 
     showTouchEffect(container, e.clientX-canvas_left_offset-total_diff_x, e.clientY-canvas_top_offset-total_diff_y);
+    checkCatDistance(e.clientX-canvas_left_offset-total_diff_x, e.clientY-canvas_top_offset-total_diff_y);
   }
   function touchStart(e) {
     in_drag = true;
@@ -317,6 +320,34 @@ console.log("jewel_fail : clear_num = "+clear_num);
     before_x_for_click = before_x_for_move_container;
 
     showTouchEffect(container, e.touches[0].clientX-canvas_left_offset-total_diff_x, e.touches[0].clientY-canvas_top_offset-total_diff_y);
+    checkCatDistance(e.touches[0].clientX-canvas_left_offset-total_diff_x, e.touches[0].clientY-canvas_top_offset-total_diff_y);
+  }
+  function checkCatDistance(x,y)
+  {
+    //現実世界系からcanvas座標系へ変換
+    x /= resize_ratio;
+    y /= resize_ratio;
+
+    var shortest_distance = Number.MAX_SAFE_INTEGER;
+    for(var index in hidden_cat_data)
+    {
+      //まだ未発見のオブジェクトについて距離を計算していく
+      if(!hidden_cat_data[index]["is_open"])
+      {
+        cat_x = hidden_cat_data[index]["x"];
+        cat_y = hidden_cat_data[index]["y"];
+        // console.log(index+" cat_x = "+cat_x+", x = "+x+", cat_y ="+cat_y+", y = "+y);
+        // console.log("Math.pow(cat_x-x,2) = "+Math.pow(cat_x-x,2));
+        // console.log("Math.pow(cat_y-y,2) = "+Math.pow(cat_y-y,2));
+        var distance = Math.sqrt(Math.pow(cat_x-x,2)+Math.pow(cat_y-y,2));
+        console.log("index = "+index+", distance = "+distance);
+        if(shortest_distance > distance)
+        {
+          shortest_distance = distance;
+        }
+      }
+    }
+    console.log("shortest_distance = "+shortest_distance);
   }
   function onUp(e) {
     in_drag = false;
