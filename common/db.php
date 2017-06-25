@@ -29,7 +29,6 @@ catch(PDOException $e)
 
 function get_viewer_id()
 {
-	print("get_viewer_id<br>");
 	if(!empty($_COOKIE['viewer_id']) && is_viewer_id_exists($_COOKIE['viewer_id']))
 	{
 		return $_COOKIE['viewer_id'];
@@ -74,7 +73,6 @@ function get_by_viewer_id($viewer_id)
 
 function is_viewer_id_exists($viewer_id)
 {
-	print("is_viewer_id_exists<br>");
 	if(get_by_viewer_id($viewer_id))
 	{
 		print("return true<br>");
@@ -95,6 +93,7 @@ function update_tutorial_clear($viewer_id)
 
 function insert_finish_time($viewer_id)
 {
+	require('config.php');
 	global $dbh;
 	$sql = "INSERT INTO wedding.game_finish_time (viewer_id, finish_time) VALUES (?, ?)";
 	$stmt = $dbh->prepare($sql);
@@ -107,9 +106,15 @@ function insert_finish_time($viewer_id)
 		$stmt = $dbh->prepare($sql);
 		$stmt->execute(array($viewer_id));
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
-		return $result['id'];
+		$id = $result['id'];
 	}
 	// insertidが取得できているので、式の開始時刻からのレコードの件数と合わせて、何番目か取得できそう
-	return $id;
+
+	$sql = "SELECT count(*) as count FROM wedding.game_finish_time WHERE finish_time > ? AND id <= ?";
+
+	$stmt = $dbh->prepare($sql);
+	$stmt->execute(array($event_start_time,$id));
+	$result = $stmt->fetch(PDO::FETCH_ASSOC);
+	return $result['count'];
 }
 ?>

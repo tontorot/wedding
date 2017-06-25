@@ -1,8 +1,13 @@
 <?php
+require('./common/config.php');
 $page = $_REQUEST['page'];
-print("page = $page");
-print("file = ".__DIR__);
-switch ($page) {
+if(time() < strtotime($event_start_time))
+{
+	require('./can_not_play_game/can_not_play_game.php');
+}
+else
+{
+	switch ($page) {
 	case 'op':
 		require('./op/op.php');
 		break;
@@ -22,6 +27,8 @@ switch ($page) {
 	default:
 		# code...
 		break;
+	}
 }
+
 
 ?>
