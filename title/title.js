@@ -14,9 +14,9 @@ $(function () {
   // 読み込むファイルの登録。
   var manifest = [
       {"src":IMAGE_DIR+BACKGROUND_IMAGE+".jpg","id":BACKGROUND_IMAGE},
-      {"src":IMAGE_DIR+TO_TUTORIAL+".jpg","id":TO_TUTORIAL},
-      {"src":IMAGE_DIR+TO_GAME+".jpg","id":TO_GAME},
-      {"src":IMAGE_DIR+TO_RANKING+".jpg","id":TO_RANKING},
+      {"src":IMAGE_DIR+TO_TUTORIAL+".png","id":TO_TUTORIAL},
+      {"src":IMAGE_DIR+TO_GAME+".png","id":TO_GAME},
+      {"src":IMAGE_DIR+TO_RANKING+".png","id":TO_RANKING},
   ];
 
   // manifestの読込
@@ -64,14 +64,14 @@ $(function () {
     canvas.addEventListener('touchstart', onTouch, false);
 
     //チュートリアルへ飛ぶボタンを設置
-    addButtonImage(container, TO_TUTORIAL, toTutorial, 160, 320);
+    addButtonImage(container, TO_TUTORIAL, toTutorial, 160, 0);
 
     if(parseInt(json_user_info.is_tutorial_clear))
     {
       //本編へ飛ぶボタンを設置
-      addButtonImage(container, TO_GAME, toGame, 160, 400);
-      //ランキングへ飛ぶボタンを設置
-      addButtonImage(container, TO_RANKING, toRanking, 160, 480);
+      addButtonImage(container, TO_GAME, toGame, 700, 0);
+      //ランキングへ飛ぶボタンを設置 時間が足りないのでオミット
+      // addButtonImage(container, TO_RANKING, toRanking, 160, 480);
     }
 
     createjs.Touch.enable(stage);

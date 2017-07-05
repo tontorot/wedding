@@ -27,9 +27,9 @@ $(function () {
    */
   var hidden_cat_data ={
        "uyu_jiji":{"x":0,  "y":100, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"uyu_jiji",  "discription_image":"uyu_jiji_discription"}
-      // ,"uyu_bus" :{"x":200,"y":-480,"image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"uyu_bus","discription_image":"milk_discription"}
+      ,"miryu"   :{"x":200,"y":-480,"image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"miryu","discription_image":"miryu_discription"}
       ,"chibi"   :{"x":320,"y":240, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"chibi",     "discription_image":"chibi_discription"}
-      ,"milk"    :{"x":400,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"milk",      "discription_image":"taichi_discription"}
+      ,"milk"    :{"x":400,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"milk",      "discription_image":"milk_discription"}
       ,"hazure1" :{"x":600,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure1",      "discription_image":"hazure1_discription"}
       ,"hazure2" :{"x":600,"y":50,  "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure2",      "discription_image":"hazure2_discription"}
     };
@@ -55,7 +55,6 @@ $(function () {
   var BACKGROUND_IMAGE_0F = "game_0F";
   var BACKGROUND_IMAGE_1F = "game_1F";
   var BACKGROUND_IMAGE_2F = "game_2F";
-  var COMPLETE_IMAGE = "complete";
   var ARROW_TOP_IMAGE = "top_arrow";
   var ARROW_BOTTOM_IMAGE = "bottom_arrow";
   var ARROW_RIGHT_IMAGE = "right_arrow";
@@ -68,7 +67,6 @@ $(function () {
       {"src":IMAGE_DIR+BACKGROUND_IMAGE_0F+".jpg","id":BACKGROUND_IMAGE_0F},
       {"src":IMAGE_DIR+BACKGROUND_IMAGE_1F+".jpg","id":BACKGROUND_IMAGE_1F},
       {"src":IMAGE_DIR+BACKGROUND_IMAGE_2F+".jpg","id":BACKGROUND_IMAGE_2F},
-      {"src":IMAGE_DIR+COMPLETE_IMAGE+".jpg","id":COMPLETE_IMAGE},
       {"src":IMAGE_DIR+"0_4.png","id":"0_4"},
       {"src":IMAGE_DIR+"1_4.png","id":"1_4"},
       {"src":IMAGE_DIR+"2_4.png","id":"2_4"},
@@ -156,23 +154,23 @@ console.log("background_image_width = "+background_image_width);
     // 2F画像を表示すると、1F画像が下に表示されたままになってしまう。これを隠すために、コンテナ2に白い画像を置いておく。
     addImage(container2, BACKGROUND_IMAGE_0F, 0,  loaded_image_list[BACKGROUND_IMAGE_1F].height);
 
-    var arrow_top_image = addImage(container, ARROW_TOP_IMAGE, 1900, 180, 0.4);
+    var arrow_top_image = addImage(container, ARROW_TOP_IMAGE, 1900, 180, 0.2);
     arrow_top_image.addEventListener('mousedown',arrow_top,false);
     arrow_top_image.addEventListener('touchstart',arrow_top,false);
-    var arrow_bottom_image = addImage(container, ARROW_BOTTOM_IMAGE, 2000, -200, 0.4);
+    var arrow_bottom_image = addImage(container, ARROW_BOTTOM_IMAGE, 2000, -300, 0.2);
     arrow_bottom_image.addEventListener('mousedown',arrow_bottom,false);
     arrow_bottom_image.addEventListener('touchstart',arrow_bottom,false);
 
     //左にスワイプできるか、右にスワイプできるかどうかの画像を表示する
-    arrow_right_image = addImage(container2, ARROW_RIGHT_IMAGE, 0, 0);
-    arrow_left_image = addImage(container2, ARROW_LEFT_IMAGE, 0, 0);
+    arrow_right_image = addImage(container2, ARROW_RIGHT_IMAGE, 1270, 370, 0.2);
+    arrow_left_image = addImage(container2, ARROW_LEFT_IMAGE, 0, 370, 0.2);
     // 最初は画面左端にいるので、左向きの矢印は非表示にしておく
     arrow_left_image.alpha = 0;
 
     // html側で定義しているcanvasのサイズ
     canvas_scaled_width = 1334 * resize_ratio;
 
-    progress_image　= addImage(container2, "0_4", 0, 0, 0.2);
+    progress_image　= addImage(container2, "0_4", 0, 0, 0.7);
     createjs.Touch.enable(stage);
 
     initCats();
@@ -299,7 +297,7 @@ console.log("jewel_fail : clear_num = "+clear_num);
         found_cat_count ++;
       }
     }
-    progress_image　= addImage(container2, found_cat_count+"_4", 0, 0, 0.2);
+    progress_image　= addImage(container2, found_cat_count+"_4", 0, 0, 0.7);
   }
 
   var in_drag = false;
@@ -556,12 +554,11 @@ console.log("hit_point_t = "+hit_point_y+", y = "+y+", height = "+calc_height);
   {
     for(var index in hidden_cat_data)
     {
-      if(!hidden_cat_data[index]["is_open"])
+      if(!hidden_cat_data[index]["is_open"] && hidden_cat_data[index]["is_cat"])
       {
         return false;
       }
     }
-    addImage(container,COMPLETE_IMAGE,640/2,480/2);
     return true;
   }
   function onOver(e) {
