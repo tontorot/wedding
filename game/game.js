@@ -2,6 +2,7 @@
 
 $(function () {
   var canvas = document.getElementById("canvas");
+  canvas_init();
 
   var cat_list_resize_ratio = 0.3;
   var container = null;
@@ -32,6 +33,8 @@ $(function () {
       ,"milk"    :{"x":400,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"milk",      "discription_image":"milk_discription"}
       ,"hazure1" :{"x":600,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure1",      "discription_image":"hazure1_discription"}
       ,"hazure2" :{"x":600,"y":50,  "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure2",      "discription_image":"hazure2_discription"}
+      ,"hazure3" :{"x":300,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure3",      "discription_image":"hazure3_discription"}
+      ,"hazure4" :{"x":300,"y":50,  "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure4",      "discription_image":"hazure4_discription"}
     };
   // 今何階にいるか。初期値1階。
   var now_floor = 1;
@@ -76,7 +79,7 @@ $(function () {
       {"src":IMAGE_DIR+ARROW_BOTTOM_IMAGE+".png","id":ARROW_BOTTOM_IMAGE},
       {"src":IMAGE_DIR+ARROW_RIGHT_IMAGE+".png","id":ARROW_RIGHT_IMAGE},
       {"src":IMAGE_DIR+ARROW_LEFT_IMAGE+".png","id":ARROW_LEFT_IMAGE},
-      {"src":IMAGE_DIR+JEWEL_GET+".png","id":JEWEL_GET},
+      {"src":IMAGE_DIR+JEWEL_GET+".jpg","id":JEWEL_GET},
       {"src":IMAGE_DIR+JEWEL_FAIL+".png","id":JEWEL_FAIL},
   ];
   for(var index in hidden_cat_data)
@@ -117,18 +120,11 @@ console.log(event.item.id + " = " + event.result.width);
   function handleComplete(event){
     // completeハンドラに渡される引数が持っているgetResult()にidを指定してファイルオブジェクトを取得する
     // var file = event.getResult(id); manifestで指定したid
-    canvas_init();
     init();
   }
 
 
   function init() {
-    createjs.Ticker.setFPS(30);
-
-    createjs.Ticker.addEventListener("tick", function() {
-      stage.update(); // 30fpsでステージの描画が更新されるようになる
-    });
-
     canvas.addEventListener('mousedown', onDown, false);
     canvas.addEventListener('touchstart', touchStart, false);
     canvas.addEventListener('mouseup', onUp, false);

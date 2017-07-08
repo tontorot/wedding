@@ -1,4 +1,5 @@
 $(function () {
+  canvas_init();
 
   var container = null;
 
@@ -64,7 +65,6 @@ $(function () {
   function handleComplete(event){
     // completeハンドラに渡される引数が持っているgetResult()にidを指定してファイルオブジェクトを取得する
     // var file = event.getResult(id); manifestで指定したid
-    canvas_init();
     init();
   }
 

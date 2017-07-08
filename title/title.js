@@ -1,4 +1,5 @@
 $(function () {
+  canvas_init();
   var container = null;
   var container2 = null;
 
@@ -42,7 +43,6 @@ $(function () {
 
   // ファイルがすべて読込完了すると呼ばれる
   function handleComplete(event){
-    canvas_init();
     init();
   }
 

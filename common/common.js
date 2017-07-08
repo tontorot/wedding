@@ -6,6 +6,7 @@ var canvas = null;
 var stage = null;
 var canvas_top_offset = 0;
 var canvas_left_offset = 0;
+var loading_image = null;
 function canvas_init()
 {
   canvas = document.getElementById("canvas");
@@ -37,8 +38,34 @@ function canvas_init()
   canvas.style.position = "absolute";
   canvas.style.top = canvas_top_offset + "px";
   canvas.style.left = canvas_left_offset + "px";
+
+  createjs.Ticker.setFPS(30);
+
+  createjs.Ticker.addEventListener("tick", function() {
+    stage.update(); // 30fpsでステージの描画が更新されるようになる
+  });
+
+  add_loading_image();
 }
 
+function add_loading_image()
+{
+  var loading_image = new createjs.Bitmap('/wedding/images/loading.png');
+  loading_image.x = canvas_scaled_width / 2;
+  loading_image.y = canvas_scaled_height / 2;
+
+  // 基準点設定
+  loading_image.regX = 133;
+  loading_image.regY = 148.5;
+
+  // サイズ設定
+  loading_image.scaleX = 1 * resize_ratio;
+  loading_image.scaleY = 1 * resize_ratio;
+
+  createjs.Tween.get(loading_image, {loop:true}).to({rotation: 360}, 5000);
+  // stageにBitmapオブジェクトを配置
+  stage.addChild(loading_image);
+}
 
 var loaded_image_list = {};
 /**
