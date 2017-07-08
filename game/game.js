@@ -46,6 +46,7 @@ $(function () {
   var progress_image = null;
   var arrow_left_image = null;
   var arrow_right_image = null;
+  var cat_find_effect_image = null;
   var hit_offset_x = 20;
   var hit_offset_y = 20;
 
@@ -64,6 +65,8 @@ $(function () {
   var ARROW_LEFT_IMAGE = "left_arrow";
   var JEWEL_GET = "jewel_get";
   var JEWEL_FAIL = "jewel_fail";
+  var CAT_FIND_SUCCESS = "mikke";
+  var CAT_FIND_FAILURE = "hatena";
   var IMAGE_DIR = "/wedding/images/";
   // 読み込むファイルの登録。
   var manifest = [
@@ -81,6 +84,8 @@ $(function () {
       {"src":IMAGE_DIR+ARROW_LEFT_IMAGE+".png","id":ARROW_LEFT_IMAGE},
       {"src":IMAGE_DIR+JEWEL_GET+".jpg","id":JEWEL_GET},
       {"src":IMAGE_DIR+JEWEL_FAIL+".png","id":JEWEL_FAIL},
+      {"src":IMAGE_DIR+CAT_FIND_SUCCESS+".png","id":CAT_FIND_SUCCESS},
+      {"src":IMAGE_DIR+CAT_FIND_FAILURE+".png","id":CAT_FIND_FAILURE},
   ];
   for(var index in hidden_cat_data)
   {
@@ -216,15 +221,27 @@ console.log("background_image_width = "+background_image_width);
       hidden_cat_data[index]["image_buff"].alpha = 1;
       // この猫は見つけられたというフラグを立てる
       hidden_cat_data[index]["is_open"] = true;
-
+console.log(hidden_cat_data[index]);
+      var cat_center_x = hidden_cat_data[index]["x"] + hidden_cat_data[index]["image_width"] / 2;
+      var effect_position_x = cat_center_x - 109;
+      var cat_center_y = hidden_cat_data[index]["y"] + hidden_cat_data[index]["image_height"] / 2;
+      var effect_position_y = cat_center_y - 126;
+      if(hidden_cat_data[index]["is_cat"])
+      {
+        cat_find_effect_image = addImage(container, CAT_FIND_SUCCESS, effect_position_x, effect_position_y);
+      }
+      else
+      {
+        cat_find_effect_image = addImage(container, CAT_FIND_FAILURE, effect_position_x, effect_position_y);
+      }
       changeProgressImage();
 
       // 1秒後に説明を表示する猫番号を一時変数に格納
       keeped_cat_index = index;
       // 1秒後に猫説明を表示
       var hoge = setInterval(function() {
-        // 見つかった猫は消して
-        // container.removeChild(get_cat);
+        // 猫を見つけたエフェクトは消して
+        container.removeChild(cat_find_effect_image);
         // 猫の説明を表示する
         cat_discription_image = addImage(container2, hidden_cat_data[index]["discription_image"], 0, 0);
         cat_discription_image.addEventListener('mousedown',deleteCatDiscription,false);
