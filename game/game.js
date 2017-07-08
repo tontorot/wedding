@@ -7,6 +7,7 @@ $(function () {
   var cat_list_resize_ratio = 0.3;
   var container = null;
   var container2 = null;
+  var container3 = null;
   var background_image_width = 0;
   var background_image_height = 0;
 
@@ -142,8 +143,10 @@ console.log(event.item.id + " = " + event.result.width);
 
     container = new createjs.Container();
     container2 = new createjs.Container();
+    container3 = new createjs.Container();
     stage.addChild(container);
     stage.addChild(container2);
+    stage.addChild(container3);
     addImage(container, BACKGROUND_IMAGE_1F, 0, 0);
 console.log("resize_ratioa = "+resize_ratio);
 console.log("resize_ratio = "+resize_ratio);
@@ -153,7 +156,7 @@ console.log("background_image_width = "+background_image_width);
     // 1F画像の高さがわかったので、2F画像を仕込んでおく。
     addImage(container, BACKGROUND_IMAGE_2F, 0, -loaded_image_list[BACKGROUND_IMAGE_1F].height);
     // 2F画像を表示すると、1F画像が下に表示されたままになってしまう。これを隠すために、コンテナ2に白い画像を置いておく。
-    addImage(container2, BACKGROUND_IMAGE_0F, 0,  loaded_image_list[BACKGROUND_IMAGE_1F].height);
+    addImage(container3, BACKGROUND_IMAGE_0F, 0,  loaded_image_list[BACKGROUND_IMAGE_1F].height);
 
     var arrow_top_image = addImage(container, ARROW_TOP_IMAGE, 1900, 180, 0.2);
     arrow_top_image.addEventListener('mousedown',arrow_top,false);
@@ -163,15 +166,15 @@ console.log("background_image_width = "+background_image_width);
     arrow_bottom_image.addEventListener('touchstart',arrow_bottom,false);
 
     //左にスワイプできるか、右にスワイプできるかどうかの画像を表示する
-    arrow_right_image = addImage(container2, ARROW_RIGHT_IMAGE, 1270, 370, 0.2);
-    arrow_left_image = addImage(container2, ARROW_LEFT_IMAGE, 0, 370, 0.2);
+    arrow_right_image = addImage(container3, ARROW_RIGHT_IMAGE, 1270, 370, 0.2);
+    arrow_left_image = addImage(container3, ARROW_LEFT_IMAGE, 0, 370, 0.2);
     // 最初は画面左端にいるので、左向きの矢印は非表示にしておく
     arrow_left_image.alpha = 0;
 
     // html側で定義しているcanvasのサイズ
     canvas_scaled_width = 1334 * resize_ratio;
 
-    progress_image　= addImage(container2, "0_4", 0, 0, 0.7);
+    progress_image　= addImage(container3, "0_4", 0, 0, 0.7);
     createjs.Touch.enable(stage);
 
     initCats();
@@ -200,7 +203,7 @@ console.log("background_image_width = "+background_image_width);
     for(var index in hidden_cat_data)
     {
       var hidden_cat = hidden_cat_data[index];
-      hidden_cat_data[index]["image_buff"] = addImage(container,hidden_cat["open_image"],hidden_cat["x"],hidden_cat["y"]);
+      hidden_cat_data[index]["image_buff"] = addImage(container2,hidden_cat["open_image"],hidden_cat["x"],hidden_cat["y"]);
       hidden_cat_data[index]["image_buff"].alpha = 0.5;
       hidden_cat_data[index]["image_buff"].addEventListener('mousedown',catsClicked(index),false);
       hidden_cat_data[index]["image_buff"].addEventListener('touchstart',catsClicked(index),false);
@@ -221,18 +224,19 @@ console.log("background_image_width = "+background_image_width);
       hidden_cat_data[index]["image_buff"].alpha = 1;
       // この猫は見つけられたというフラグを立てる
       hidden_cat_data[index]["is_open"] = true;
-console.log(hidden_cat_data[index]);
+
+      var effect_scale = 2;
       var cat_center_x = hidden_cat_data[index]["x"] + hidden_cat_data[index]["image_width"] / 2;
-      var effect_position_x = cat_center_x - 109;
+      var effect_position_x = cat_center_x - 109 * effect_scale;
       var cat_center_y = hidden_cat_data[index]["y"] + hidden_cat_data[index]["image_height"] / 2;
-      var effect_position_y = cat_center_y - 126;
+      var effect_position_y = cat_center_y - 126 * effect_scale;
       if(hidden_cat_data[index]["is_cat"])
       {
-        cat_find_effect_image = addImage(container, CAT_FIND_SUCCESS, effect_position_x, effect_position_y);
+        cat_find_effect_image = addImage(container, CAT_FIND_SUCCESS, effect_position_x, effect_position_y, effect_scale);
       }
       else
       {
-        cat_find_effect_image = addImage(container, CAT_FIND_FAILURE, effect_position_x, effect_position_y);
+        cat_find_effect_image = addImage(container, CAT_FIND_FAILURE, effect_position_x, effect_position_y, effect_scale);
       }
       changeProgressImage();
 
@@ -243,7 +247,7 @@ console.log(hidden_cat_data[index]);
         // 猫を見つけたエフェクトは消して
         container.removeChild(cat_find_effect_image);
         // 猫の説明を表示する
-        cat_discription_image = addImage(container2, hidden_cat_data[index]["discription_image"], 0, 0);
+        cat_discription_image = addImage(container3, hidden_cat_data[index]["discription_image"], 0, 0);
         cat_discription_image.addEventListener('mousedown',deleteCatDiscription,false);
         cat_discription_image.addEventListener('touchstart',deleteCatDiscription,false);
         clearInterval(hoge);
@@ -253,7 +257,7 @@ console.log(hidden_cat_data[index]);
 
   function deleteCatDiscription()
   {
-    container2.removeChild(cat_discription_image);
+    container3.removeChild(cat_discription_image);
     //猫の説明を消して、再度猫をタッチできるように
     is_touch_forbidden = false;
     if(is_complete())
@@ -283,12 +287,12 @@ console.log(hidden_cat_data[index]);
         if(clear_num <= 50)
         {
 console.log("jewel_get : clear_num = "+clear_num);
-          addImage(container2, JEWEL_GET, 0,  0);
+          addImage(container3, JEWEL_GET, 0,  0);
         }
         else
         {
 console.log("jewel_fail : clear_num = "+clear_num);
-          addImage(container2, JEWEL_FAIL, 0,  0);
+          addImage(container3, JEWEL_FAIL, 0,  0);
         }
     })
     // ・サーバからステータスコード400以上が返ってきたとき
@@ -301,7 +305,7 @@ console.log("jewel_fail : clear_num = "+clear_num);
 
   function changeProgressImage()
   {
-    container2.removeChild(progress_image);
+    container3.removeChild(progress_image);
     var found_cat_count = 0;
     for(var index2 in hidden_cat_data)
     {
@@ -310,7 +314,7 @@ console.log("jewel_fail : clear_num = "+clear_num);
         found_cat_count ++;
       }
     }
-    progress_image　= addImage(container2, found_cat_count+"_4", 0, 0, 0.7);
+    progress_image　= addImage(container3, found_cat_count+"_4", 0, 0, 0.7);
   }
 
   var in_drag = false;
@@ -491,14 +495,14 @@ console.log("jewel_fail : clear_num = "+clear_num);
       return;
     }
     //猫の説明画面が出ていれば、それを削除する
-    var ret = container2.removeChild(cat_discription_image);
+    var ret = container3.removeChild(cat_discription_image);
     //猫の説明画像を削除するのに成功した場合
     if(ret)
     {
       is_complete();
       // ダンボール画像を削除して、開封後画像に置換
-      // container2.removeChild(hidden_cat_data[keeped_cat_index]["image_buff"]);
-      // added_image = addImage(container2, hidden_cat_data[keeped_cat_index]["open_image"], hidden_cat_data[keeped_cat_index]["hit_offset_x"], hit_offset_y, cat_list_resize_ratio);
+      // container3.removeChild(hidden_cat_data[keeped_cat_index]["image_buff"]);
+      // added_image = addImage(container3, hidden_cat_data[keeped_cat_index]["open_image"], hidden_cat_data[keeped_cat_index]["hit_offset_x"], hit_offset_y, cat_list_resize_ratio);
       // 猫の説明画像が出ていて、削除された場合は、以降の猫探索処理を実行しない
       return;
     }
@@ -544,12 +548,12 @@ console.log("hit_point_t = "+hit_point_y+", y = "+y+", height = "+calc_height);
           // 見つかった猫は消して
           // container.removeChild(get_cat);
           // 猫の説明を表示する
-          cat_discription_image = addImage(container2, hidden_cat["discription_image"], 0, 0);
+          cat_discription_image = addImage(container3, hidden_cat["discription_image"], 0, 0);
           is_touch_forbidden = false;
           clearInterval(hoge);
         }, 1000);
 
-        container2.removeChild(progress_image);
+        container3.removeChild(progress_image);
         var found_cat_count = 0;
         for(var index2 in hidden_cat_data)
         {
@@ -558,7 +562,7 @@ console.log("hit_point_t = "+hit_point_y+", y = "+y+", height = "+calc_height);
             found_cat_count ++;
           }
         }
-        progress_image　= addImage(container2, found_cat_count+"_4", 0, 0, 0.2);
+        progress_image　= addImage(container3, found_cat_count+"_4", 0, 0, 0.2);
       }
     }
   }
