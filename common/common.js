@@ -87,7 +87,11 @@ var prev_ripple_y = 0;
 
 //タッチ演出を作る
 function showTouchEffect(target_container,x,y)
-{console.log("showTouchEffect x:"+x+", y:"+y);
+{
+  var scaled_x = x / resize_ratio;
+  var scaled_y = y / resize_ratio;
+  // console.log("showTouchEffect x:"+x+", y:"+y);
+  console.log("showTouchEffect scaled_x:"+scaled_x+", scaled_y:"+scaled_y);
   // 肉球画像をロード
   var bitmap = new createjs.Bitmap('/wedding/images/nikukyu.png');
 

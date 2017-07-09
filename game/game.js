@@ -29,14 +29,14 @@ $(function () {
    * @param discription_image 見つかる猫説明をする画像名。拡張子抜き。
    */
   var hidden_cat_data ={
-       "uyu_jiji":{"x":0,  "y":100, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"uyu_jiji",  "discription_image":"uyu_jiji_discription"}
-      ,"miryu"   :{"x":200,"y":-480,"image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"miryu","discription_image":"miryu_discription"}
-      ,"chibi"   :{"x":320,"y":240, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"chibi",     "discription_image":"chibi_discription"}
-      ,"milk"    :{"x":400,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"milk",      "discription_image":"milk_discription"}
-      ,"hazure1" :{"x":600,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure1",      "discription_image":"hazure1_discription"}
-      ,"hazure2" :{"x":600,"y":50,  "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure2",      "discription_image":"hazure2_discription"}
-      ,"hazure3" :{"x":300,"y":320, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure3",      "discription_image":"hazure3_discription"}
-      ,"hazure4" :{"x":300,"y":50,  "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure4",      "discription_image":"hazure4_discription"}
+       "uyu_jiji":{"x":559,  "y":440, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"uyu_jiji",  "discription_image":"uyu_jiji_discription"}
+      ,"miryu"   :{"x":1044,"y":396,"image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"miryu","discription_image":"miryu_discription"}
+      ,"chibi"   :{"x":2529,"y":450, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"chibi",     "discription_image":"chibi_discription"}
+      ,"milk"    :{"x":2497,"y":-499, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"milk",      "discription_image":"milk_discription"}
+      ,"hazure1" :{"x":828,"y":266, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure1",      "discription_image":"hazure1_discription"}
+      ,"hazure2" :{"x":1753,"y":327,  "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure2",      "discription_image":"hazure2_discription"}
+      ,"hazure3" :{"x":907,"y":-618, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure3",      "discription_image":"hazure3_discription"}
+      ,"hazure4" :{"x":1948,"y":-534,  "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure4",      "discription_image":"hazure4_discription"}
     };
   // 今何階にいるか。初期値1階。
   var now_floor = 1;
@@ -162,10 +162,10 @@ console.log("background_image_width = "+background_image_width);
     // 2F画像を表示すると、1F画像が下に表示されたままになってしまう。これを隠すために、コンテナ2に白い画像を置いておく。
     addImage(container3, BACKGROUND_IMAGE_0F, 0,  loaded_image_list[BACKGROUND_IMAGE_1F].height);
 
-    var arrow_top_image = addImage(container, ARROW_TOP_IMAGE, 1900, 180, 0.2);
+    var arrow_top_image = addImage(container, ARROW_TOP_IMAGE, 100, 170, 0.2);
     arrow_top_image.addEventListener('mousedown',arrow_top,false);
     arrow_top_image.addEventListener('touchstart',arrow_top,false);
-    var arrow_bottom_image = addImage(container, ARROW_BOTTOM_IMAGE, 2000, -300, 0.2);
+    var arrow_bottom_image = addImage(container, ARROW_BOTTOM_IMAGE, 366, -408, 0.2);
     arrow_bottom_image.addEventListener('mousedown',arrow_bottom,false);
     arrow_bottom_image.addEventListener('touchstart',arrow_bottom,false);
 
