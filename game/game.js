@@ -8,6 +8,7 @@ $(function () {
   var container = null;
   var container2 = null;
   var container3 = null;
+  var move_container = null;
   var background_image_width = 0;
   var background_image_height = 0;
 
@@ -144,8 +145,11 @@ console.log(event.item.id + " = " + event.result.width);
     container = new createjs.Container();
     container2 = new createjs.Container();
     container3 = new createjs.Container();
-    stage.addChild(container);
-    stage.addChild(container2);
+    move_container = new createjs.Container();
+
+    move_container.addChild(container);
+    move_container.addChild(container2);
+    stage.addChild(move_container);
     stage.addChild(container3);
     addImage(container, BACKGROUND_IMAGE_1F, 0, 0);
 console.log("resize_ratioa = "+resize_ratio);
@@ -184,7 +188,7 @@ console.log("background_image_width = "+background_image_width);
   function arrow_top(event)
   {
     console.log("arrow_top");
-    createjs.Tween.get(container).to({y:background_image_height}, 1000);
+    createjs.Tween.get(move_container).to({y:background_image_height}, 1000);
     total_diff_y = background_image_height;
     now_floor = 2;
     stage.update();
@@ -192,7 +196,7 @@ console.log("background_image_width = "+background_image_width);
   function arrow_bottom(event)
   {
     console.log("arrow_bottom");
-    createjs.Tween.get(container).to({y:0}, 1000);
+    createjs.Tween.get(move_container).to({y:0}, 1000);
     total_diff_y = 0;
     now_floor = 1;
     stage.update();
@@ -429,7 +433,7 @@ console.log("jewel_fail : clear_num = "+clear_num);
       }
 
       $("#textbox").text(total_diff_x);
-      container.setTransform(total_diff_x,total_diff_y);
+      move_container.setTransform(total_diff_x,total_diff_y);
       stage.update();
     }
   }
@@ -460,7 +464,7 @@ console.log("jewel_fail : clear_num = "+clear_num);
            to_upstairs_rectangle["y"] * resize_ratio < y &&
            y < (to_upstairs_rectangle["y"] + to_upstairs_rectangle["height"]) * resize_ratio)
         {
-          createjs.Tween.get(container).to({y:background_image_height}, 1000);
+          createjs.Tween.get(move_container).to({y:background_image_height}, 1000);
           total_diff_y = background_image_height;
           now_floor = 2;
           stage.update();
@@ -473,7 +477,7 @@ console.log("jewel_fail : clear_num = "+clear_num);
            to_downstairs_rectangle["y"] * resize_ratio < y &&
            y < (to_downstairs_rectangle["y"] + to_downstairs_rectangle["height"]) * resize_ratio)
         {
-          createjs.Tween.get(container).to({y:0}, 1000);
+          createjs.Tween.get(move_container).to({y:0}, 1000);
           total_diff_y = 0;
           now_floor = 1;
           stage.update();
