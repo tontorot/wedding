@@ -49,6 +49,7 @@ $(function () {
   var arrow_left_image = null;
   var arrow_right_image = null;
   var cat_find_effect_image = null;
+  var baloon_image = null;
   var hit_offset_x = 20;
   var hit_offset_y = 20;
 
@@ -69,6 +70,11 @@ $(function () {
   var JEWEL_FAIL = "jewel_fail";
   var CAT_FIND_SUCCESS = "mikke";
   var CAT_FIND_FAILURE = "hatena";
+  var BALOON1 = "baloon1";
+  var BALOON2 = "baloon2";
+  var BALOON3 = "baloon3";
+  var BALOON4 = "baloon4";
+  var BALOON5 = "baloon5";
   var IMAGE_DIR = "/wedding/images/";
   // 読み込むファイルの登録。
   var manifest = [
@@ -88,6 +94,11 @@ $(function () {
       {"src":IMAGE_DIR+JEWEL_FAIL+".png","id":JEWEL_FAIL},
       {"src":IMAGE_DIR+CAT_FIND_SUCCESS+".png","id":CAT_FIND_SUCCESS},
       {"src":IMAGE_DIR+CAT_FIND_FAILURE+".png","id":CAT_FIND_FAILURE},
+      {"src":IMAGE_DIR+BALOON1+".png","id":BALOON1},
+      {"src":IMAGE_DIR+BALOON2+".png","id":BALOON2},
+      {"src":IMAGE_DIR+BALOON3+".png","id":BALOON3},
+      {"src":IMAGE_DIR+BALOON4+".png","id":BALOON4},
+      {"src":IMAGE_DIR+BALOON5+".png","id":BALOON5},
   ];
   for(var index in hidden_cat_data)
   {
@@ -174,6 +185,8 @@ console.log("background_image_width = "+background_image_width);
     arrow_left_image = addImage(container3, ARROW_LEFT_IMAGE, 0, 370, 0.2);
     // 最初は画面左端にいるので、左向きの矢印は非表示にしておく
     arrow_left_image.alpha = 0;
+
+    addBaloonImage(BALOON1);
 
     // html側で定義しているcanvasのサイズ
     canvas_scaled_width = 1334 * resize_ratio;
@@ -321,6 +334,13 @@ console.log("jewel_fail : clear_num = "+clear_num);
     progress_image　= addImage(container3, found_cat_count+"_4", 0, 0, 0.7);
   }
 
+  function addBaloonImage(image_name)
+  {
+    container3.removeChild(baloon_image);
+    baloon_image = addImage(container3, image_name, 0, 0);
+    createjs.Tween.get(baloon_image).to({alpha: 0}, 2000);
+  }
+
   var in_drag = false;
   var before_x_for_move_container;
   var total_diff_x = 0;
@@ -367,6 +387,21 @@ console.log("jewel_fail : clear_num = "+clear_num);
       }
     }
     console.log("shortest_distance = "+shortest_distance);
+    // 猫の説明文を表示中で、猫を探す操作が無効になってるときは猫レーダーを反応させない
+    if(is_touch_forbidden)
+    {
+      return;
+    }
+
+    //　猫レーダーの感度によって、表示する反応をかえる
+    if(shortest_distance < 100)
+    {
+      addBaloonImage(BALOON3);
+    }
+    else if(shortest_distance < 300)
+    {
+      addBaloonImage(BALOON2);
+    }
   }
   function onUp(e) {
     in_drag = false;
