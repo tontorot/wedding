@@ -102,10 +102,7 @@ function insert_finish_time($viewer_id)
 	if($id == 0)
 	{
 		//insertに失敗したということは、すでにレコードが存在しているので、改めてselectしてidを投げる
-		$sql = "SELECT id FROM wedding.game_finish_time where viewer_id = ?";
-		$stmt = $dbh->prepare($sql);
-		$stmt->execute(array($viewer_id));
-		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$result = select_finish_time($viewer_id);
 		$id = $result['id'];
 	}
 	// insertidが取得できているので、式の開始時刻からのレコードの件数と合わせて、何番目か取得できそう
@@ -116,5 +113,15 @@ function insert_finish_time($viewer_id)
 	$stmt->execute(array($event_start_time,$id));
 	$result = $stmt->fetch(PDO::FETCH_ASSOC);
 	return $result['count'];
+}
+
+function select_finish_time($viewer_id)
+{
+	global $dbh;
+	$sql = "SELECT id FROM wedding.game_finish_time where viewer_id = ?";
+	$stmt = $dbh->prepare($sql);
+	$stmt->execute(array($viewer_id));
+	$result = $stmt->fetch(PDO::FETCH_ASSOC);
+	return $result;
 }
 ?>

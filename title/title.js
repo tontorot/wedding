@@ -64,12 +64,19 @@ $(function () {
     canvas.addEventListener('touchstart', onTouch, false);
 
     //チュートリアルへ飛ぶボタンを設置
-    addButtonImage(container, TO_TUTORIAL, toTutorial, 160, 0);
+    var tutorial_image = addButtonImage(container, TO_TUTORIAL, toTutorial, 160, 0);
 
+    // 「チュートリアルをクリアし、ゲーム本編をクリアしていないとき」以外は、チュートリアルボタンを動かす
+    if(parseInt(json_user_info.is_tutorial_clear) != 1 || json_finish_info != false)
+    {
+      createjs.Tween.get(tutorial_image, {loop:true}).to({scaleX:1.2*resize_ratio}, 1000).to({scaleX:1*resize_ratio}, 1000);
+    }
+    
     if(parseInt(json_user_info.is_tutorial_clear))
     {
-      //本編へ飛ぶボタンを設置
-      addButtonImage(container, TO_GAME, toGame, 700, 0);
+      //チュートリアルをクリアしているなら、ゲーム本編へ飛ぶボタンを設置
+      var game_image = addButtonImage(container, TO_GAME, toGame, 700, 0);
+      createjs.Tween.get(game_image, {loop:true}).to({scaleX:1.2*resize_ratio}, 1000).to({scaleX:1*resize_ratio}, 1000);
       //ランキングへ飛ぶボタンを設置 時間が足りないのでオミット
       // addButtonImage(container, TO_RANKING, toRanking, 160, 480);
     }
@@ -102,6 +109,19 @@ $(function () {
     added_image.setTransform(image_x*resize_ratio,image_y*resize_ratio,resize_ratio,resize_ratio);
     added_image.addEventListener('mousedown',event_name,false);
     added_image.addEventListener('touchstart',event_name,false);
+
+    // tweenで回転や拡大収縮をする際の基準点
+    added_image.regX = loaded_image_list[image_name].width/2;
+    added_image.regY = loaded_image_list[image_name].height/2;
+
+    // 基準点をずらすと画像自体も場所がずれるので、x,yパラメータにreg分だけ補正をかける
+    added_image.x += added_image.regX * resize_ratio;
+    added_image.y += added_image.regY * resize_ratio;
+
+    // サイズ設定
+    added_image.scaleX = 1 * resize_ratio;
+    added_image.scaleY = 1 * resize_ratio;
+
     target_container.addChild(added_image);
     return added_image;
   }
