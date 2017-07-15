@@ -174,9 +174,13 @@ console.log("background_image_width = "+background_image_width);
     addImage(container3, BACKGROUND_IMAGE_0F, 0,  loaded_image_list[BACKGROUND_IMAGE_1F].height);
 
     var arrow_top_image = addImage(container, ARROW_TOP_IMAGE, 100, 170, 0.2);
+    // 縦に引き伸ばすアニメーションを加える
+    createjs.Tween.get(arrow_top_image, {loop:true}).to({scaleY:0.25*resize_ratio}, 1000).to({scaleY:0.2*resize_ratio}, 1000);
     arrow_top_image.addEventListener('mousedown',arrow_top,false);
     arrow_top_image.addEventListener('touchstart',arrow_top,false);
     var arrow_bottom_image = addImage(container, ARROW_BOTTOM_IMAGE, 366, -408, 0.2);
+    // 縦に引き伸ばすアニメーションを加える
+    createjs.Tween.get(arrow_bottom_image, {loop:true}).to({scaleY:0.25*resize_ratio}, 1000).to({scaleY:0.2*resize_ratio}, 1000);
     arrow_bottom_image.addEventListener('mousedown',arrow_bottom,false);
     arrow_bottom_image.addEventListener('touchstart',arrow_bottom,false);
 
