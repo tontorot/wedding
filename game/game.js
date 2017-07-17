@@ -231,7 +231,7 @@ console.log("background_image_width = "+background_image_width);
       hidden_cat_data[index]["image_buff"].addEventListener('mousedown',catsClicked(index),false);
       hidden_cat_data[index]["image_buff"].addEventListener('touchstart',catsClicked(index),false);
       hidden_cat_data[index]["image_buff"].addEventListener('pressup',catsPressup(index),false);
-      // hidden_cat_data[index]["image_buff"].addEventListener('touchend',catsClicked(index),false);
+      hidden_cat_data[index]["image_buff"].addEventListener('ontouchend',catsPressup(index),false);
     }
   }
   var is_cat_pressed = false;
@@ -452,8 +452,8 @@ console.log("background_image_width = "+background_image_width);
     {
       return;
     }
-    showTouchEffect(container, e.touches[0].clientX-canvas_left_offset-total_diff_x, e.touches[0].clientY-canvas_top_offset-total_diff_y);
-    checkCatDistance(e.touches[0].clientX-canvas_left_offset-total_diff_x, e.touches[0].clientY-canvas_top_offset-total_diff_y);
+    showTouchEffect(container, e.changedTouches[0].clientX-canvas_left_offset-total_diff_x, e.changedTouches[0].clientY-canvas_top_offset-total_diff_y);
+    checkCatDistance(e.changedTouches[0].clientX-canvas_left_offset-total_diff_x, e.changedTouches[0].clientY-canvas_top_offset-total_diff_y);
   }
   function onMove(e) {
     moveContainer_x(e.clientX)
