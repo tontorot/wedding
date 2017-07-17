@@ -75,6 +75,7 @@ $(function () {
   var BALOON3 = "baloon3";
   var BALOON4 = "baloon4";
   var BALOON5 = "baloon5";
+  var COMPLETE = "complete";
   var IMAGE_DIR = "/wedding/images/";
   // 読み込むファイルの登録。
   var manifest = [
@@ -91,7 +92,7 @@ $(function () {
       {"src":IMAGE_DIR+ARROW_RIGHT_IMAGE+".png","id":ARROW_RIGHT_IMAGE},
       {"src":IMAGE_DIR+ARROW_LEFT_IMAGE+".png","id":ARROW_LEFT_IMAGE},
       {"src":IMAGE_DIR+JEWEL_GET+".jpg","id":JEWEL_GET},
-      {"src":IMAGE_DIR+JEWEL_FAIL+".png","id":JEWEL_FAIL},
+      {"src":IMAGE_DIR+JEWEL_FAIL+".jpg","id":JEWEL_FAIL},
       {"src":IMAGE_DIR+CAT_FIND_SUCCESS+".png","id":CAT_FIND_SUCCESS},
       {"src":IMAGE_DIR+CAT_FIND_FAILURE+".png","id":CAT_FIND_FAILURE},
       {"src":IMAGE_DIR+BALOON1+".png","id":BALOON1},
@@ -99,6 +100,7 @@ $(function () {
       {"src":IMAGE_DIR+BALOON3+".png","id":BALOON3},
       {"src":IMAGE_DIR+BALOON4+".png","id":BALOON4},
       {"src":IMAGE_DIR+BALOON5+".png","id":BALOON5},
+      {"src":IMAGE_DIR+COMPLETE+".png","id":COMPLETE},
   ];
   for(var index in hidden_cat_data)
   {
