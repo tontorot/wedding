@@ -16,6 +16,7 @@ $(function () {
   var TUTORIAL_STEP_3 = 3;
   var TUTORIAL_STEP_4 = 4;
   var TUTORIAL_STEP_5 = 5;
+  var TUTORIAL_STEP_5_2 = '5_2';
   var TUTORIAL_STEP_6 = 6;
   var TUTORIAL_STEP_7 = 7;
   var TUTORIAL_STEP_8 = 8;
@@ -40,6 +41,7 @@ $(function () {
   {
     manifest.push({"src":IMAGE_DIR+"tutorial"+i+".jpg","id":"tutorial"+i});
   }
+  manifest.push({"src":IMAGE_DIR+"tutorial5_2.jpg","id":"tutorial5_2"});
 
   // manifestの読込
   queue.loadManifest(manifest,true);
@@ -133,6 +135,11 @@ $(function () {
         baloon_image = addImage(container, "tutorial"+tutorial_step, 0, 0);
         break;
       case TUTORIAL_STEP_5:
+        tutorial_step = TUTORIAL_STEP_5_2;
+        container.removeChild(tutorial_image);
+        baloon_image = addImage(container, "tutorial"+tutorial_step, 0, 0);
+        break;
+      case TUTORIAL_STEP_5_2:
         tutorial_step = TUTORIAL_STEP_6;
         container.removeChild(tutorial_image);
         baloon_image = addImage(container, "tutorial"+tutorial_step, 0, 0);
