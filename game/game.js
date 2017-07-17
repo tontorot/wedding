@@ -75,6 +75,10 @@ $(function () {
   var BALOON3 = "baloon3";
   var BALOON4 = "baloon4";
   var BALOON5 = "baloon5";
+  var CAT_RADAR_UYU = "cat_radar_uyu";
+  var CAT_RADAR_NEAR = "cat_radar_near";
+  var CAT_RADAR_VERY_NEAR = "cat_radar_very_near";
+  var CAT_RADAR_COMMENT = "cat_radar_comment";
   var COMPLETE = "complete";
   var IMAGE_DIR = "/wedding/images/";
   // 読み込むファイルの登録。
@@ -100,6 +104,9 @@ $(function () {
       {"src":IMAGE_DIR+BALOON3+".png","id":BALOON3},
       {"src":IMAGE_DIR+BALOON4+".png","id":BALOON4},
       {"src":IMAGE_DIR+BALOON5+".png","id":BALOON5},
+      {"src":IMAGE_DIR+CAT_RADAR_UYU+".png","id":CAT_RADAR_UYU},
+      {"src":IMAGE_DIR+CAT_RADAR_NEAR+".png","id":CAT_RADAR_NEAR},
+      {"src":IMAGE_DIR+CAT_RADAR_VERY_NEAR+".png","id":CAT_RADAR_VERY_NEAR},
       {"src":IMAGE_DIR+COMPLETE+".png","id":COMPLETE},
   ];
   for(var index in hidden_cat_data)
@@ -108,6 +115,10 @@ $(function () {
     var discription_image_name = hidden_cat_data[index]["discription_image"];
     manifest.push({"src":IMAGE_DIR+open_image_name+".png","id":open_image_name});
     manifest.push({"src":IMAGE_DIR+discription_image_name+".png","id":discription_image_name});
+  }
+  for(var comment = 1; comment <= 10; comment++)
+  {
+    manifest.push({"src":IMAGE_DIR+CAT_RADAR_COMMENT+comment+".png","id":CAT_RADAR_COMMENT+comment});
   }
 
   // manifestの読込
@@ -192,7 +203,8 @@ console.log("background_image_width = "+background_image_width);
     // 最初は画面左端にいるので、左向きの矢印は非表示にしておく
     arrow_left_image.alpha = 0;
 
-    addBaloonImage(BALOON1);
+    addImage(container3, CAT_RADAR_UYU, 0, 0);
+    addBaloonImage(CAT_RADAR_COMMENT+'10');
 
     // html側で定義しているcanvasのサイズ
     canvas_scaled_width = 1334 * resize_ratio;
@@ -386,6 +398,7 @@ console.log("background_image_width = "+background_image_width);
     before_x_for_click = before_x_for_move_container;
     before_total_diff_x = total_diff_x;
   }
+  var last_comment_num = 10;
   function checkCatDistance(x,y)
   {
     if(total_diff_x != before_total_diff_x)
@@ -404,9 +417,6 @@ console.log("background_image_width = "+background_image_width);
       {
         cat_x = hidden_cat_data[index]["x"];
         cat_y = hidden_cat_data[index]["y"];
-        // console.log(index+" cat_x = "+cat_x+", x = "+x+", cat_y ="+cat_y+", y = "+y);
-        // console.log("Math.pow(cat_x-x,2) = "+Math.pow(cat_x-x,2));
-        // console.log("Math.pow(cat_y-y,2) = "+Math.pow(cat_y-y,2));
         var distance = Math.sqrt(Math.pow(cat_x-x,2)+Math.pow(cat_y-y,2));
         // console.log("index = "+index+", distance = "+distance);
         if(shortest_distance > distance)
@@ -428,11 +438,23 @@ console.log("background_image_width = "+background_image_width);
     //　猫レーダーの感度によって、表示する反応をかえる
     if(shortest_distance < 100)
     {
-      addBaloonImage(BALOON3);
+      addBaloonImage(CAT_RADAR_VERY_NEAR);
     }
     else if(shortest_distance < 300)
     {
-      addBaloonImage(BALOON2);
+      addBaloonImage(CAT_RADAR_NEAR);
+    }
+    else
+    {
+      var comment_num = 10;
+      // 特に近くないときは適当にうゆにしゃべらせる。
+      do
+      {
+        comment_num = Math.floor(Math.random() * (10 - 1)) + 1;
+        console.log("lot comment_num:"+comment_num);
+      }while(comment_num == last_comment_num);
+      last_comment_num = comment_num;
+      addBaloonImage(CAT_RADAR_COMMENT+comment_num);
     }
   }
   function onUp(e) {

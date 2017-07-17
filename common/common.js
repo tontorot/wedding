@@ -118,6 +118,8 @@ function showTouchEffect(target_container,x,y)
   prev_ripple_y = y;
 
   createjs.Tween.get(bitmap).to({alpha: 0}, 2000);
+  // なんかキモいので却下
+  // createjs.Tween.get(bitmap).to({alpha: 0,scaleX: 0.2*resize_ratio, scaleY: 0.2*resize_ratio}, 500);
   // stageにBitmapオブジェクトを配置
   target_container.addChild(bitmap);
 }
