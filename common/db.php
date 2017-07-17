@@ -1,25 +1,29 @@
 <?php
+date_default_timezone_set('UTC');
 try
 {
 	$user = 'root';
 	$pass = '';
 	$dbh = new PDO('mysql:host=localhost;', $user, $pass);
 
-	switch ($_REQUEST['method'])
+	if(array_key_exists('method', $_REQUEST))
 	{
-		case 'update_tutorial_clear':
-			$viewer_id = $_REQUEST['viewer_id'];
-			$result = update_tutorial_clear($viewer_id);
-			echo $result;
-			break;
-		case 'finish':
-			$viewer_id = $_REQUEST['viewer_id'];
-			$result = insert_finish_time($viewer_id);
-			echo $result;
-			break;
-		default:
-			# code...
-			break;
+		switch ($_REQUEST['method'])
+		{
+			case 'update_tutorial_clear':
+				$viewer_id = $_REQUEST['viewer_id'];
+				$result = update_tutorial_clear($viewer_id);
+				echo $result;
+				break;
+			case 'finish':
+				$viewer_id = $_REQUEST['viewer_id'];
+				$result = insert_finish_time($viewer_id);
+				echo $result;
+				break;
+			default:
+				# code...
+				break;
+		}
 	}
 }
 catch(PDOException $e)
