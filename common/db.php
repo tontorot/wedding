@@ -97,12 +97,18 @@ function update_tutorial_clear($viewer_id)
 
 function insert_finish_time($viewer_id)
 {
-	require('config.php');
 	global $dbh;
 	$sql = "INSERT INTO wedding.game_finish_time (viewer_id, finish_time) VALUES (?, ?)";
 	$stmt = $dbh->prepare($sql);
 	$stmt->execute(array($viewer_id,date('Y-m-d H:i:s')));
 	$id = $dbh->lastInsertId();
+	return get_finish_number($viewer_id, $id);
+}
+
+function get_finish_number($viewer_id, $id=0)
+{
+	require('config.php');
+	global $dbh;
 	if($id == 0)
 	{
 		//insertに失敗したということは、すでにレコードが存在しているので、改めてselectしてidを投げる
@@ -112,7 +118,6 @@ function insert_finish_time($viewer_id)
 	// insertidが取得できているので、式の開始時刻からのレコードの件数と合わせて、何番目か取得できそう
 
 	$sql = "SELECT count(*) as count FROM wedding.game_finish_time WHERE finish_time > ? AND id <= ?";
-
 	$stmt = $dbh->prepare($sql);
 	$stmt->execute(array($event_start_time,$id));
 	$result = $stmt->fetch(PDO::FETCH_ASSOC);

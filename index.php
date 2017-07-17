@@ -20,9 +20,9 @@ else
 	case 'game':
 		require('./game/game.php');
 		break;
-	// case 'title':
-	// 	require('./title/title.php');
-	// 	break;
+	case 'result':
+		require('./result/result.php');
+		break;
 	
 	default:
 		# code...

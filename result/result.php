@@ -1,5 +1,4 @@
 <?php
-
 require("./common/db.php");
 $viewer_id = get_viewer_id();
 $user_info = get_by_viewer_id($viewer_id);
@@ -19,7 +18,7 @@ $_output = <<<HTML
     <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script type="text/javascript" src="/wedding/common/common.js"></script>
-    <script type="text/javascript" src="/wedding/title/title.js"></script>
+    <script type="text/javascript" src="/wedding/result/result.js"></script>
   </head>
   <body bgcolor="#000000">
     <canvas id="canvas" width="1334" height="750"></canvas>
