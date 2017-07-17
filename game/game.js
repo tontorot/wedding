@@ -337,16 +337,22 @@ console.log("background_image_width = "+background_image_width);
         var clear_num = parseInt(response);
         var complete_image = addImage(container3, COMPLETE, 0, 0);
         stage.addEventListener('mousedown', function(){
+          var result_image = null
           if(clear_num <= 50)
           {
             console.log("jewel_get : clear_num = "+clear_num);
-            addImage(container3, JEWEL_GET, 0,  0);
+            result_image = addImage(container3, JEWEL_GET, 0,  0);
           }
           else
           {
             console.log("jewel_fail : clear_num = "+clear_num);
-            addImage(container3, JEWEL_FAIL, 0,  0);
+            result_image = addImage(container3, JEWEL_FAIL, 0,  0);
           }
+          stage.removeEventListener('mousedown');
+          stage.addEventListener('mousedown', function(){
+            console.log("to title");
+            window.location.href = '/wedding/index.php?page=title';
+          });
         });
 
     })
