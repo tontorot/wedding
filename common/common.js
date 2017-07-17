@@ -101,7 +101,7 @@ function showTouchEffect(target_container,x,y)
 
   // 基準点設定
   bitmap.regX = 200;
-  bitmap.regY = 200;
+  bitmap.regY = 257.5;
 
   // サイズ設定
   bitmap.scaleX = 0.2 * resize_ratio;
