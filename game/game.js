@@ -307,16 +307,20 @@ console.log("background_image_width = "+background_image_width);
         console.log(response);
         console.log("ajax success");
         var clear_num = parseInt(response);
-        if(clear_num <= 50)
-        {
-console.log("jewel_get : clear_num = "+clear_num);
-          addImage(container3, JEWEL_GET, 0,  0);
-        }
-        else
-        {
-console.log("jewel_fail : clear_num = "+clear_num);
-          addImage(container3, JEWEL_FAIL, 0,  0);
-        }
+        var complete_image = addImage(container3, COMPLETE, 0, 0);
+        stage.addEventListener('mousedown', function(){
+          if(clear_num <= 50)
+          {
+            console.log("jewel_get : clear_num = "+clear_num);
+            addImage(container3, JEWEL_GET, 0,  0);
+          }
+          else
+          {
+            console.log("jewel_fail : clear_num = "+clear_num);
+            addImage(container3, JEWEL_FAIL, 0,  0);
+          }
+        });
+
     })
     // ・サーバからステータスコード400以上が返ってきたとき
     // ・ステータスコードは正常だが、dataTypeで定義したようにパース出来なかったとき
