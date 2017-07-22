@@ -261,7 +261,7 @@ console.log("background_image_width = "+background_image_width);
     {
       var hidden_cat = hidden_cat_data[index];
       hidden_cat_data[index]["image_buff"] = addImage(container2,hidden_cat["open_image"],hidden_cat["x"],hidden_cat["y"]);
-      hidden_cat_data[index]["image_buff"].alpha = 0.5;
+      hidden_cat_data[index]["image_buff"].alpha = 0.0;
       hidden_cat_data[index]["image_buff"].addEventListener('mousedown',catsClicked(index),false);
       hidden_cat_data[index]["image_buff"].addEventListener('touchstart',catsClicked(index),false);
       hidden_cat_data[index]["image_buff"].addEventListener('pressup',catsPressup(index),false);
