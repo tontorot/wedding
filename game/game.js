@@ -29,14 +29,14 @@ $(function () {
    * @param discription_image 見つかる猫説明をする画像名。拡張子抜き。
    */
   var hidden_cat_data ={
-       "uyu_jiji":{"x":559,  "y":440, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"uyu_jiji",  "discription_image":"uyu_jiji_discription"}
-      ,"miryu"   :{"x":1044,"y":396,"image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"miryu","discription_image":"miryu_discription"}
-      ,"chibi"   :{"x":2529,"y":450, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"chibi",     "discription_image":"chibi_discription"}
-      ,"milk"    :{"x":2497,"y":-499, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"milk",      "discription_image":"milk_discription"}
-      ,"hazure1" :{"x":828,"y":266, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure1",      "discription_image":"hazure1_discription"}
-      ,"hazure2" :{"x":1753,"y":327,  "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure2",      "discription_image":"hazure2_discription"}
-      ,"hazure3" :{"x":907,"y":-618, "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure3",      "discription_image":"hazure3_discription"}
-      ,"hazure4" :{"x":1948,"y":-534,  "image_width":0, "image_height":0, "hit_offset_x":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure4",      "discription_image":"hazure4_discription"}
+       "uyu_jiji":{"x":559,  "y":440, "image_width":0, "image_height":0, "reg_x":0, "reg_y":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"uyu_jiji",  "discription_image":"uyu_jiji_discription"}
+      ,"miryu"   :{"x":1044,"y":396,"image_width":0, "image_height":0, "reg_x":0, "reg_y":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"miryu","discription_image":"miryu_discription"}
+      ,"chibi"   :{"x":2529,"y":450, "image_width":0, "image_height":0, "reg_x":0, "reg_y":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"chibi",     "discription_image":"chibi_discription"}
+      ,"milk"    :{"x":2497,"y":-499, "image_width":0, "image_height":0, "reg_x":0, "reg_y":0, "is_open":false, "is_cat":true, "image_buff":null, "open_image":"milk",      "discription_image":"milk_discription"}
+      ,"hazure1" :{"x":828,"y":266, "image_width":0, "image_height":0, "reg_x":0, "reg_y":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure1",      "discription_image":"hazure1_discription"}
+      ,"hazure2" :{"x":1753,"y":327,  "image_width":0, "image_height":0, "reg_x":0, "reg_y":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure2",      "discription_image":"hazure2_discription"}
+      ,"hazure3" :{"x":907,"y":-618, "image_width":0, "image_height":0, "reg_x":0, "reg_y":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure3",      "discription_image":"hazure3_discription"}
+      ,"hazure4" :{"x":1948,"y":-534,  "image_width":0, "image_height":0, "reg_x":0, "reg_y":0, "is_open":false, "is_cat":false, "image_buff":null, "open_image":"hazure4",      "discription_image":"hazure4_discription"}
     };
   // 今何階にいるか。初期値1階。
   var now_floor = 1;
@@ -50,8 +50,6 @@ $(function () {
   var arrow_right_image = null;
   var cat_find_effect_image = null;
   var baloon_image = null;
-  var hit_offset_x = 20;
-  var hit_offset_y = 20;
 
   var is_touch_forbidden = false;
   var keeped_cat_index = null;
@@ -141,6 +139,8 @@ console.log(event.item.id + " = " + event.result.width);
       // 読み込んだ画像がネコ画像であったなら、その画像の横幅・縦幅の情報を更新
       hidden_cat_data[event.item.id]["image_width"] = event.result.width;
       hidden_cat_data[event.item.id]["image_height"] = event.result.height;
+      hidden_cat_data[event.item.id]["reg_x"] = event.result.width / 2;
+      hidden_cat_data[event.item.id]["reg_y"] = event.result.height / 2;
     }
     if(event.item.type === createjs.LoadQueue.IMAGE){
       loaded_image_list[event.item.id] = event.result;
@@ -189,13 +189,17 @@ console.log("background_image_width = "+background_image_width);
     var arrow_top_image = addImage(container, ARROW_TOP_IMAGE, 100, 170, 0.2);
     // 縦に引き伸ばすアニメーションを加える
     createjs.Tween.get(arrow_top_image, {loop:true}).to({scaleY:0.25*resize_ratio}, 1000).to({scaleY:0.2*resize_ratio}, 1000);
-    arrow_top_image.addEventListener('mousedown',arrow_top,false);
-    arrow_top_image.addEventListener('touchstart',arrow_top,false);
+    arrow_top_image.addEventListener('mousedown',arrow_top_clicked,false);
+    arrow_top_image.addEventListener('touchstart',arrow_top_clicked,false);
+    arrow_top_image.addEventListener('pressup',arrow_top_pressup,false);
+    arrow_top_image.addEventListener('ontouchend',arrow_top_pressup,false);
     var arrow_bottom_image = addImage(container, ARROW_BOTTOM_IMAGE, 366, -408, 0.2);
     // 縦に引き伸ばすアニメーションを加える
     createjs.Tween.get(arrow_bottom_image, {loop:true}).to({scaleY:0.25*resize_ratio}, 1000).to({scaleY:0.2*resize_ratio}, 1000);
-    arrow_bottom_image.addEventListener('mousedown',arrow_bottom,false);
-    arrow_bottom_image.addEventListener('touchstart',arrow_bottom,false);
+    arrow_bottom_image.addEventListener('mousedown',arrow_bottom_clicked,false);
+    arrow_bottom_image.addEventListener('touchstart',arrow_bottom_clicked,false);
+    arrow_bottom_image.addEventListener('pressup',arrow_bottom_pressup,false);
+    arrow_bottom_image.addEventListener('ontouchend',arrow_bottom_pressup,false);
 
     //左にスワイプできるか、右にスワイプできるかどうかの画像を表示する
     arrow_right_image = addImage(container3, ARROW_RIGHT_IMAGE, 1270, 370, 0.2);
@@ -216,17 +220,35 @@ console.log("background_image_width = "+background_image_width);
     // Stageの描画を更新します
     stage.update();
   }
-  function arrow_top(event)
+  function arrow_top_clicked(event)
   {
-    console.log("arrow_top");
+    is_cat_pressed = true;
+  }
+  function arrow_top_pressup(event)
+  {
+    console.log("arrow_top_pressup");
+    is_cat_pressed = false;
+    if(total_diff_x != before_total_diff_x)
+    {
+      return;
+    }
     createjs.Tween.get(move_container).to({y:background_image_height}, 1000);
     total_diff_y = background_image_height;
     now_floor = 2;
     stage.update();
   }
-  function arrow_bottom(event)
+  function arrow_bottom_clicked(event)
   {
-    console.log("arrow_bottom");
+    is_cat_pressed = true;
+  }
+  function arrow_bottom_pressup(event)
+  {
+    console.log("arrow_bottom_pressup");
+    is_cat_pressed = false;
+    if(total_diff_x != before_total_diff_x)
+    {
+      return;
+    }
     createjs.Tween.get(move_container).to({y:0}, 1000);
     total_diff_y = 0;
     now_floor = 1;
@@ -306,6 +328,7 @@ console.log("background_image_width = "+background_image_width);
     }
   }
 
+  var is_game_finished = false;
   function deleteCatDiscription()
   {
     container3.removeChild(cat_discription_image);
@@ -314,6 +337,7 @@ console.log("background_image_width = "+background_image_width);
     if(is_complete())
     {
       console.log("game end");
+      is_game_finished = true;
       addFinishImage();
     }
   }
@@ -380,6 +404,10 @@ console.log("background_image_width = "+background_image_width);
 
   function addBaloonImage(image_name)
   {
+    if(is_game_finished)
+    {
+      return;
+    }
     container3.removeChild(baloon_image);
     baloon_image = addImage(container3, image_name, 0, 0);
     createjs.Tween.get(baloon_image).to({alpha: 0}, 2000);
@@ -396,7 +424,7 @@ console.log("background_image_width = "+background_image_width);
     before_x_for_move_container = e.clientX - canvas.offsetLeft;
     before_x_for_click = before_x_for_move_container;
     before_total_diff_x = total_diff_x;
- }
+  }
   function touchStart(e) {
     console.log("EVENT:touchStart");
     in_drag = true;
@@ -421,10 +449,10 @@ console.log("background_image_width = "+background_image_width);
       //まだ未発見のオブジェクトについて距離を計算していく
       if(!hidden_cat_data[index]["is_open"])
       {
-        cat_x = hidden_cat_data[index]["x"];
-        cat_y = hidden_cat_data[index]["y"];
+        cat_x = hidden_cat_data[index]["x"]+hidden_cat_data[index]["reg_x"];
+        cat_y = hidden_cat_data[index]["y"]+hidden_cat_data[index]["reg_y"];
         var distance = Math.sqrt(Math.pow(cat_x-x,2)+Math.pow(cat_y-y,2));
-        // console.log("index = "+index+", distance = "+distance);
+        console.log("index = "+index+", distance = "+distance);
         if(shortest_distance > distance)
         {
           shortest_distance = distance;
@@ -446,7 +474,7 @@ console.log("background_image_width = "+background_image_width);
     {
       addBaloonImage(CAT_RADAR_VERY_NEAR);
     }
-    else if(shortest_distance < 300)
+    else if(shortest_distance < 250)
     {
       addBaloonImage(CAT_RADAR_NEAR);
     }
