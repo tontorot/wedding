@@ -16,23 +16,15 @@ function canvas_init()
   var window_height = window.innerHeight;
   var need_width = 1334;
   var need_height = 750;
-  if(window_width/window_height > need_width/need_height)
-  {
-    //想定より横長だったので、縦幅を画面に合わせて、canvasを画面中央にするためちょっと右にずらす
-    resize_ratio = window_height / need_height;
-    canvas_scaled_width = need_width * resize_ratio;
-    canvas_scaled_height = need_height * resize_ratio;
-    canvas_left_offset = (window_width - canvas_scaled_width) / 2;
-  }
-  else
-  {
-    //想定より縦長だったので、横幅を画面に合わせて、canvasを画面中央にするためちょっと下にずらす
-    resize_ratio = window_width / need_width;
-    canvas_scaled_width = need_width * resize_ratio;
-    canvas_scaled_height = need_height * resize_ratio;
-    canvas_top_offset = (window_height - canvas_scaled_height) / 2;
-  }
+  var clientHeight = document.documentElement.clientHeight;
+  
+  // 縦持ち横持ち問わず、横幅が一致するように合わせ、もう少し縮小する
+  resize_ratio = window_width / need_width * 0.9;
   canvas_scaled_width = need_width * resize_ratio;
+  canvas_scaled_height = need_height * resize_ratio;
+  canvas_left_offset = (window_width - canvas_scaled_width) / 2;
+  // canvas_top_offset = (window_height - canvas_scaled_height);
+// alert("canvas_top_offset = "+canvas_top_offset);
   canvas.setAttribute("width", canvas_scaled_width);
   canvas.setAttribute("height", canvas_scaled_height);
   canvas.style.position = "absolute";

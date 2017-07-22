@@ -21,7 +21,7 @@ $_output = <<<HTML
     <script type="text/javascript" src="/wedding/tutorial/tutorial.js"></script>
   </head>
   <body bgcolor="#000000">
-    <canvas id="canvas" width="1334" height="750"></canvas>
+    <canvas id="canvas"></canvas>
   }
   </body>
   </html>
